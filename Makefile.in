@@ -1,0 +1,24 @@
+NAME=hyperion
+LIBNAME=lib
+
+PLUGINS=
+
+include rules.mk
+
+# Model generation arguments with Dynamo
+# --package XXX.XXX.Models db uml/xxx.zargo
+DYNAMO_ARGS=db
+
+post-build:
+ifneq (${PLUGINS},)
+	for i in  ; do \
+	   $(MAKE) -C plugins/$$i ; \
+	done
+endif
+
+post-generate:
+ifneq (${PLUGINS},)
+	for i in  ; do \
+	   $(MAKE) -C plugins/$$i generate ; \
+	done
+endif
