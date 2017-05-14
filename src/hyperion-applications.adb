@@ -160,6 +160,10 @@ package body Hyperion.Applications is
                 Name   => AWA.Wikis.Previews.NAME,
                 URI    => "wikis-preview",
                 Module => App.Preview_Module'Access);
+      Register (App    => App.Self.all'Access,
+                Name   => Hyperion.Hosts.Modules.NAME,
+                URI    => "hosts",
+                Module => App.Host_Module'Access);
    end Initialize_Modules;
 
 end Hyperion.Applications;
