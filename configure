@@ -4227,7 +4227,7 @@ $as_echo "<prefix>/${ADA_PRJ_BASE}" >&6; }
 
   fi
 
-ac_config_files="$ac_config_files Makefile hyperion.gpr tests.gpr rules.mk"
+ac_config_files="$ac_config_files Makefile hyperion.gpr rules.mk"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4937,7 +4937,6 @@ do
   case $ac_config_target in
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "hyperion.gpr") CONFIG_FILES="$CONFIG_FILES hyperion.gpr" ;;
-    "tests.gpr") CONFIG_FILES="$CONFIG_FILES tests.gpr" ;;
     "rules.mk") CONFIG_FILES="$CONFIG_FILES rules.mk" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
