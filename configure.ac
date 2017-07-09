@@ -118,5 +118,5 @@ AC_SUBST(AWA_DIR)
 
 AM_UTIL_CHECK_INSTALL
 AC_OUTPUT(
-Makefile hyperion.gpr tests.gpr rules.mk
+Makefile hyperion.gpr rules.mk
 )
