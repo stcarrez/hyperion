@@ -30,6 +30,842 @@ package body Hyperion.Monitoring.Models is
 
    pragma Warnings (Off, "formal parameter * is not referenced");
 
+   function Snapshot_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key is
+      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
+                                       Of_Class => SNAPSHOT_DEF'Access);
+   begin
+      ADO.Objects.Set_Value (Result, Id);
+      return Result;
+   end Snapshot_Key;
+
+   function Snapshot_Key (Id : in String) return ADO.Objects.Object_Key is
+      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
+                                       Of_Class => SNAPSHOT_DEF'Access);
+   begin
+      ADO.Objects.Set_Value (Result, Id);
+      return Result;
+   end Snapshot_Key;
+
+   function "=" (Left, Right : Snapshot_Ref'Class) return Boolean is
+   begin
+      return ADO.Objects.Object_Ref'Class (Left) = ADO.Objects.Object_Ref'Class (Right);
+   end "=";
+
+   procedure Set_Field (Object : in out Snapshot_Ref'Class;
+                        Impl   : out Snapshot_Access) is
+      Result : ADO.Objects.Object_Record_Access;
+   begin
+      Object.Prepare_Modify (Result);
+      Impl := Snapshot_Impl (Result.all)'Access;
+   end Set_Field;
+
+   --  Internal method to allocate the Object_Record instance
+   procedure Allocate (Object : in out Snapshot_Ref) is
+      Impl : Snapshot_Access;
+   begin
+      Impl := new Snapshot_Impl;
+      Impl.Start_Date := ADO.DEFAULT_TIME;
+      Impl.End_Date := ADO.DEFAULT_TIME;
+      Impl.Version := 0;
+      ADO.Objects.Set_Object (Object, Impl.all'Access);
+   end Allocate;
+
+   -- ----------------------------------------
+   --  Data object: Snapshot
+   -- ----------------------------------------
+
+   procedure Set_Id (Object : in out Snapshot_Ref;
+                     Value  : in ADO.Identifier) is
+      Impl : Snapshot_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Key_Value (Impl.all, 1, Value);
+   end Set_Id;
+
+   function Get_Id (Object : in Snapshot_Ref)
+                  return ADO.Identifier is
+      Impl : constant Snapshot_Access
+         := Snapshot_Impl (Object.Get_Object.all)'Access;
+   begin
+      return Impl.Get_Key_Value;
+   end Get_Id;
+
+
+   procedure Set_Start_Date (Object : in out Snapshot_Ref;
+                             Value  : in Ada.Calendar.Time) is
+      Impl : Snapshot_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Time (Impl.all, 2, Impl.Start_Date, Value);
+   end Set_Start_Date;
+
+   function Get_Start_Date (Object : in Snapshot_Ref)
+                  return Ada.Calendar.Time is
+      Impl : constant Snapshot_Access
+         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Start_Date;
+   end Get_Start_Date;
+
+
+   procedure Set_End_Date (Object : in out Snapshot_Ref;
+                           Value  : in Ada.Calendar.Time) is
+      Impl : Snapshot_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Time (Impl.all, 3, Impl.End_Date, Value);
+   end Set_End_Date;
+
+   function Get_End_Date (Object : in Snapshot_Ref)
+                  return Ada.Calendar.Time is
+      Impl : constant Snapshot_Access
+         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.End_Date;
+   end Get_End_Date;
+
+
+   function Get_Version (Object : in Snapshot_Ref)
+                  return Integer is
+      Impl : constant Snapshot_Access
+         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Version;
+   end Get_Version;
+
+
+   procedure Set_Host (Object : in out Snapshot_Ref;
+                       Value  : in Hyperion.Hosts.Models.Host_Ref'Class) is
+      Impl : Snapshot_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Object (Impl.all, 5, Impl.Host, Value);
+   end Set_Host;
+
+   function Get_Host (Object : in Snapshot_Ref)
+                  return Hyperion.Hosts.Models.Host_Ref'Class is
+      Impl : constant Snapshot_Access
+         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Host;
+   end Get_Host;
+
+   --  Copy of the object.
+   procedure Copy (Object : in Snapshot_Ref;
+                   Into   : in out Snapshot_Ref) is
+      Result : Snapshot_Ref;
+   begin
+      if not Object.Is_Null then
+         declare
+            Impl : constant Snapshot_Access
+              := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
+            Copy : constant Snapshot_Access
+              := new Snapshot_Impl;
+         begin
+            ADO.Objects.Set_Object (Result, Copy.all'Access);
+            Copy.Copy (Impl.all);
+            Copy.Start_Date := Impl.Start_Date;
+            Copy.End_Date := Impl.End_Date;
+            Copy.Version := Impl.Version;
+            Copy.Host := Impl.Host;
+         end;
+      end if;
+      Into := Result;
+   end Copy;
+
+   procedure Find (Object  : in out Snapshot_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class;
+                   Found   : out Boolean) is
+      Impl  : constant Snapshot_Access := new Snapshot_Impl;
+   begin
+      Impl.Find (Session, Query, Found);
+      if Found then
+         ADO.Objects.Set_Object (Object, Impl.all'Access);
+      else
+         ADO.Objects.Set_Object (Object, null);
+         Destroy (Impl);
+      end if;
+   end Find;
+
+   procedure Load (Object  : in out Snapshot_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Id      : in ADO.Identifier) is
+      Impl  : constant Snapshot_Access := new Snapshot_Impl;
+      Found : Boolean;
+      Query : ADO.SQL.Query;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Impl.Find (Session, Query, Found);
+      if not Found then
+         Destroy (Impl);
+         raise ADO.Objects.NOT_FOUND;
+      end if;
+      ADO.Objects.Set_Object (Object, Impl.all'Access);
+   end Load;
+
+   procedure Load (Object  : in out Snapshot_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Id      : in ADO.Identifier;
+                   Found   : out Boolean) is
+      Impl  : constant Snapshot_Access := new Snapshot_Impl;
+      Query : ADO.SQL.Query;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Impl.Find (Session, Query, Found);
+      if not Found then
+         Destroy (Impl);
+      else
+         ADO.Objects.Set_Object (Object, Impl.all'Access);
+      end if;
+   end Load;
+
+   procedure Save (Object  : in out Snapshot_Ref;
+                   Session : in out ADO.Sessions.Master_Session'Class) is
+      Impl : ADO.Objects.Object_Record_Access := Object.Get_Object;
+   begin
+      if Impl = null then
+         Impl := new Snapshot_Impl;
+         ADO.Objects.Set_Object (Object, Impl);
+      end if;
+      if not ADO.Objects.Is_Created (Impl.all) then
+         Impl.Create (Session);
+      else
+         Impl.Save (Session);
+      end if;
+   end Save;
+
+   procedure Delete (Object  : in out Snapshot_Ref;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Impl : constant ADO.Objects.Object_Record_Access := Object.Get_Object;
+   begin
+      if Impl /= null then
+         Impl.Delete (Session);
+      end if;
+   end Delete;
+
+   --  --------------------
+   --  Free the object
+   --  --------------------
+   procedure Destroy (Object : access Snapshot_Impl) is
+      type Snapshot_Impl_Ptr is access all Snapshot_Impl;
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+              (Snapshot_Impl, Snapshot_Impl_Ptr);
+      pragma Warnings (Off, "*redundant conversion*");
+      Ptr : Snapshot_Impl_Ptr := Snapshot_Impl (Object.all)'Access;
+      pragma Warnings (On, "*redundant conversion*");
+   begin
+      Unchecked_Free (Ptr);
+   end Destroy;
+
+   procedure Find (Object  : in out Snapshot_Impl;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class;
+                   Found   : out Boolean) is
+      Stmt : ADO.Statements.Query_Statement
+          := Session.Create_Statement (Query, SNAPSHOT_DEF'Access);
+   begin
+      Stmt.Execute;
+      if Stmt.Has_Elements then
+         Object.Load (Stmt, Session);
+         Stmt.Next;
+         Found := not Stmt.Has_Elements;
+      else
+         Found := False;
+      end if;
+   end Find;
+
+   overriding
+   procedure Load (Object  : in out Snapshot_Impl;
+                   Session : in out ADO.Sessions.Session'Class) is
+      Found : Boolean;
+      Query : ADO.SQL.Query;
+      Id    : constant ADO.Identifier := Object.Get_Key_Value;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Object.Find (Session, Query, Found);
+      if not Found then
+         raise ADO.Objects.NOT_FOUND;
+      end if;
+   end Load;
+
+   procedure Save (Object  : in out Snapshot_Impl;
+                   Session : in out ADO.Sessions.Master_Session'Class) is
+      Stmt : ADO.Statements.Update_Statement
+         := Session.Create_Statement (SNAPSHOT_DEF'Access);
+   begin
+      if Object.Is_Modified (1) then
+         Stmt.Save_Field (Name  => COL_0_1_NAME, --  id
+                          Value => Object.Get_Key);
+         Object.Clear_Modified (1);
+      end if;
+      if Object.Is_Modified (2) then
+         Stmt.Save_Field (Name  => COL_1_1_NAME, --  start_date
+                          Value => Object.Start_Date);
+         Object.Clear_Modified (2);
+      end if;
+      if Object.Is_Modified (3) then
+         Stmt.Save_Field (Name  => COL_2_1_NAME, --  end_date
+                          Value => Object.End_Date);
+         Object.Clear_Modified (3);
+      end if;
+      if Object.Is_Modified (5) then
+         Stmt.Save_Field (Name  => COL_4_1_NAME, --  host_id
+                          Value => Object.Host);
+         Object.Clear_Modified (5);
+      end if;
+      if Stmt.Has_Save_Fields then
+         Object.Version := Object.Version + 1;
+         Stmt.Save_Field (Name  => "version",
+                          Value => Object.Version);
+         Stmt.Set_Filter (Filter => "id = ? and version = ?");
+         Stmt.Add_Param (Value => Object.Get_Key);
+         Stmt.Add_Param (Value => Object.Version - 1);
+         declare
+            Result : Integer;
+         begin
+            Stmt.Execute (Result);
+            if Result /= 1 then
+               if Result /= 0 then
+                  raise ADO.Objects.UPDATE_ERROR;
+               else
+                  raise ADO.Objects.LAZY_LOCK;
+               end if;
+            end if;
+         end;
+      end if;
+   end Save;
+
+   procedure Create (Object  : in out Snapshot_Impl;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Query : ADO.Statements.Insert_Statement
+                  := Session.Create_Statement (SNAPSHOT_DEF'Access);
+      Result : Integer;
+   begin
+      Object.Version := 1;
+      Session.Allocate (Id => Object);
+      Query.Save_Field (Name  => COL_0_1_NAME, --  id
+                        Value => Object.Get_Key);
+      Query.Save_Field (Name  => COL_1_1_NAME, --  start_date
+                        Value => Object.Start_Date);
+      Query.Save_Field (Name  => COL_2_1_NAME, --  end_date
+                        Value => Object.End_Date);
+      Query.Save_Field (Name  => COL_3_1_NAME, --  version
+                        Value => Object.Version);
+      Query.Save_Field (Name  => COL_4_1_NAME, --  host_id
+                        Value => Object.Host);
+      Query.Execute (Result);
+      if Result /= 1 then
+         raise ADO.Objects.INSERT_ERROR;
+      end if;
+      ADO.Objects.Set_Created (Object);
+   end Create;
+
+   procedure Delete (Object  : in out Snapshot_Impl;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Stmt : ADO.Statements.Delete_Statement
+         := Session.Create_Statement (SNAPSHOT_DEF'Access);
+   begin
+      Stmt.Set_Filter (Filter => "id = ?");
+      Stmt.Add_Param (Value => Object.Get_Key);
+      Stmt.Execute;
+   end Delete;
+
+   --  ------------------------------
+   --  Get the bean attribute identified by the name.
+   --  ------------------------------
+   overriding
+   function Get_Value (From : in Snapshot_Ref;
+                       Name : in String) return Util.Beans.Objects.Object is
+      Obj  : ADO.Objects.Object_Record_Access;
+      Impl : access Snapshot_Impl;
+   begin
+      if From.Is_Null then
+         return Util.Beans.Objects.Null_Object;
+      end if;
+      Obj := From.Get_Load_Object;
+      Impl := Snapshot_Impl (Obj.all)'Access;
+      if Name = "id" then
+         return ADO.Objects.To_Object (Impl.Get_Key);
+      elsif Name = "start_date" then
+         return Util.Beans.Objects.Time.To_Object (Impl.Start_Date);
+      elsif Name = "end_date" then
+         return Util.Beans.Objects.Time.To_Object (Impl.End_Date);
+      end if;
+      return Util.Beans.Objects.Null_Object;
+   end Get_Value;
+
+
+   procedure List (Object  : in out Snapshot_Vector;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class) is
+      Stmt : ADO.Statements.Query_Statement
+        := Session.Create_Statement (Query, SNAPSHOT_DEF'Access);
+   begin
+      Stmt.Execute;
+      Snapshot_Vectors.Clear (Object);
+      while Stmt.Has_Elements loop
+         declare
+            Item : Snapshot_Ref;
+            Impl : constant Snapshot_Access := new Snapshot_Impl;
+         begin
+            Impl.Load (Stmt, Session);
+            ADO.Objects.Set_Object (Item, Impl.all'Access);
+            Object.Append (Item);
+         end;
+         Stmt.Next;
+      end loop;
+   end List;
+
+   --  ------------------------------
+   --  Load the object from current iterator position
+   --  ------------------------------
+   procedure Load (Object  : in out Snapshot_Impl;
+                   Stmt    : in out ADO.Statements.Query_Statement'Class;
+                   Session : in out ADO.Sessions.Session'Class) is
+   begin
+      Object.Set_Key_Value (Stmt.Get_Identifier (0));
+      Object.Start_Date := Stmt.Get_Time (1);
+      Object.End_Date := Stmt.Get_Time (2);
+      if not Stmt.Is_Null (4) then
+         Object.Host.Set_Key_Value (Stmt.Get_Identifier (4), Session);
+      end if;
+      Object.Version := Stmt.Get_Integer (3);
+      ADO.Objects.Set_Created (Object);
+   end Load;
+   function Source_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key is
+      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
+                                       Of_Class => SOURCE_DEF'Access);
+   begin
+      ADO.Objects.Set_Value (Result, Id);
+      return Result;
+   end Source_Key;
+
+   function Source_Key (Id : in String) return ADO.Objects.Object_Key is
+      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
+                                       Of_Class => SOURCE_DEF'Access);
+   begin
+      ADO.Objects.Set_Value (Result, Id);
+      return Result;
+   end Source_Key;
+
+   function "=" (Left, Right : Source_Ref'Class) return Boolean is
+   begin
+      return ADO.Objects.Object_Ref'Class (Left) = ADO.Objects.Object_Ref'Class (Right);
+   end "=";
+
+   procedure Set_Field (Object : in out Source_Ref'Class;
+                        Impl   : out Source_Access) is
+      Result : ADO.Objects.Object_Record_Access;
+   begin
+      Object.Prepare_Modify (Result);
+      Impl := Source_Impl (Result.all)'Access;
+   end Set_Field;
+
+   --  Internal method to allocate the Object_Record instance
+   procedure Allocate (Object : in out Source_Ref) is
+      Impl : Source_Access;
+   begin
+      Impl := new Source_Impl;
+      Impl.Version := 0;
+      ADO.Objects.Set_Object (Object, Impl.all'Access);
+   end Allocate;
+
+   -- ----------------------------------------
+   --  Data object: Source
+   -- ----------------------------------------
+
+   procedure Set_Id (Object : in out Source_Ref;
+                     Value  : in ADO.Identifier) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Key_Value (Impl.all, 1, Value);
+   end Set_Id;
+
+   function Get_Id (Object : in Source_Ref)
+                  return ADO.Identifier is
+      Impl : constant Source_Access
+         := Source_Impl (Object.Get_Object.all)'Access;
+   begin
+      return Impl.Get_Key_Value;
+   end Get_Id;
+
+
+   procedure Set_Name (Object : in out Source_Ref;
+                        Value : in String) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_String (Impl.all, 2, Impl.Name, Value);
+   end Set_Name;
+
+   procedure Set_Name (Object : in out Source_Ref;
+                       Value  : in Ada.Strings.Unbounded.Unbounded_String) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Unbounded_String (Impl.all, 2, Impl.Name, Value);
+   end Set_Name;
+
+   function Get_Name (Object : in Source_Ref)
+                 return String is
+   begin
+      return Ada.Strings.Unbounded.To_String (Object.Get_Name);
+   end Get_Name;
+   function Get_Name (Object : in Source_Ref)
+                  return Ada.Strings.Unbounded.Unbounded_String is
+      Impl : constant Source_Access
+         := Source_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Name;
+   end Get_Name;
+
+
+   procedure Set_Label (Object : in out Source_Ref;
+                         Value : in String) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_String (Impl.all, 3, Impl.Label, Value);
+   end Set_Label;
+
+   procedure Set_Label (Object : in out Source_Ref;
+                        Value  : in Ada.Strings.Unbounded.Unbounded_String) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Unbounded_String (Impl.all, 3, Impl.Label, Value);
+   end Set_Label;
+
+   function Get_Label (Object : in Source_Ref)
+                 return String is
+   begin
+      return Ada.Strings.Unbounded.To_String (Object.Get_Label);
+   end Get_Label;
+   function Get_Label (Object : in Source_Ref)
+                  return Ada.Strings.Unbounded.Unbounded_String is
+      Impl : constant Source_Access
+         := Source_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Label;
+   end Get_Label;
+
+
+   function Get_Version (Object : in Source_Ref)
+                  return Integer is
+      Impl : constant Source_Access
+         := Source_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Version;
+   end Get_Version;
+
+
+   procedure Set_Host (Object : in out Source_Ref;
+                       Value  : in Hyperion.Hosts.Models.Host_Ref'Class) is
+      Impl : Source_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Object (Impl.all, 5, Impl.Host, Value);
+   end Set_Host;
+
+   function Get_Host (Object : in Source_Ref)
+                  return Hyperion.Hosts.Models.Host_Ref'Class is
+      Impl : constant Source_Access
+         := Source_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Host;
+   end Get_Host;
+
+   --  Copy of the object.
+   procedure Copy (Object : in Source_Ref;
+                   Into   : in out Source_Ref) is
+      Result : Source_Ref;
+   begin
+      if not Object.Is_Null then
+         declare
+            Impl : constant Source_Access
+              := Source_Impl (Object.Get_Load_Object.all)'Access;
+            Copy : constant Source_Access
+              := new Source_Impl;
+         begin
+            ADO.Objects.Set_Object (Result, Copy.all'Access);
+            Copy.Copy (Impl.all);
+            Copy.Name := Impl.Name;
+            Copy.Label := Impl.Label;
+            Copy.Version := Impl.Version;
+            Copy.Host := Impl.Host;
+         end;
+      end if;
+      Into := Result;
+   end Copy;
+
+   procedure Find (Object  : in out Source_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class;
+                   Found   : out Boolean) is
+      Impl  : constant Source_Access := new Source_Impl;
+   begin
+      Impl.Find (Session, Query, Found);
+      if Found then
+         ADO.Objects.Set_Object (Object, Impl.all'Access);
+      else
+         ADO.Objects.Set_Object (Object, null);
+         Destroy (Impl);
+      end if;
+   end Find;
+
+   procedure Load (Object  : in out Source_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Id      : in ADO.Identifier) is
+      Impl  : constant Source_Access := new Source_Impl;
+      Found : Boolean;
+      Query : ADO.SQL.Query;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Impl.Find (Session, Query, Found);
+      if not Found then
+         Destroy (Impl);
+         raise ADO.Objects.NOT_FOUND;
+      end if;
+      ADO.Objects.Set_Object (Object, Impl.all'Access);
+   end Load;
+
+   procedure Load (Object  : in out Source_Ref;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Id      : in ADO.Identifier;
+                   Found   : out Boolean) is
+      Impl  : constant Source_Access := new Source_Impl;
+      Query : ADO.SQL.Query;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Impl.Find (Session, Query, Found);
+      if not Found then
+         Destroy (Impl);
+      else
+         ADO.Objects.Set_Object (Object, Impl.all'Access);
+      end if;
+   end Load;
+
+   procedure Save (Object  : in out Source_Ref;
+                   Session : in out ADO.Sessions.Master_Session'Class) is
+      Impl : ADO.Objects.Object_Record_Access := Object.Get_Object;
+   begin
+      if Impl = null then
+         Impl := new Source_Impl;
+         ADO.Objects.Set_Object (Object, Impl);
+      end if;
+      if not ADO.Objects.Is_Created (Impl.all) then
+         Impl.Create (Session);
+      else
+         Impl.Save (Session);
+      end if;
+   end Save;
+
+   procedure Delete (Object  : in out Source_Ref;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Impl : constant ADO.Objects.Object_Record_Access := Object.Get_Object;
+   begin
+      if Impl /= null then
+         Impl.Delete (Session);
+      end if;
+   end Delete;
+
+   --  --------------------
+   --  Free the object
+   --  --------------------
+   procedure Destroy (Object : access Source_Impl) is
+      type Source_Impl_Ptr is access all Source_Impl;
+      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
+              (Source_Impl, Source_Impl_Ptr);
+      pragma Warnings (Off, "*redundant conversion*");
+      Ptr : Source_Impl_Ptr := Source_Impl (Object.all)'Access;
+      pragma Warnings (On, "*redundant conversion*");
+   begin
+      Unchecked_Free (Ptr);
+   end Destroy;
+
+   procedure Find (Object  : in out Source_Impl;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class;
+                   Found   : out Boolean) is
+      Stmt : ADO.Statements.Query_Statement
+          := Session.Create_Statement (Query, SOURCE_DEF'Access);
+   begin
+      Stmt.Execute;
+      if Stmt.Has_Elements then
+         Object.Load (Stmt, Session);
+         Stmt.Next;
+         Found := not Stmt.Has_Elements;
+      else
+         Found := False;
+      end if;
+   end Find;
+
+   overriding
+   procedure Load (Object  : in out Source_Impl;
+                   Session : in out ADO.Sessions.Session'Class) is
+      Found : Boolean;
+      Query : ADO.SQL.Query;
+      Id    : constant ADO.Identifier := Object.Get_Key_Value;
+   begin
+      Query.Bind_Param (Position => 1, Value => Id);
+      Query.Set_Filter ("id = ?");
+      Object.Find (Session, Query, Found);
+      if not Found then
+         raise ADO.Objects.NOT_FOUND;
+      end if;
+   end Load;
+
+   procedure Save (Object  : in out Source_Impl;
+                   Session : in out ADO.Sessions.Master_Session'Class) is
+      Stmt : ADO.Statements.Update_Statement
+         := Session.Create_Statement (SOURCE_DEF'Access);
+   begin
+      if Object.Is_Modified (1) then
+         Stmt.Save_Field (Name  => COL_0_2_NAME, --  id
+                          Value => Object.Get_Key);
+         Object.Clear_Modified (1);
+      end if;
+      if Object.Is_Modified (2) then
+         Stmt.Save_Field (Name  => COL_1_2_NAME, --  name
+                          Value => Object.Name);
+         Object.Clear_Modified (2);
+      end if;
+      if Object.Is_Modified (3) then
+         Stmt.Save_Field (Name  => COL_2_2_NAME, --  label
+                          Value => Object.Label);
+         Object.Clear_Modified (3);
+      end if;
+      if Object.Is_Modified (5) then
+         Stmt.Save_Field (Name  => COL_4_2_NAME, --  host_id
+                          Value => Object.Host);
+         Object.Clear_Modified (5);
+      end if;
+      if Stmt.Has_Save_Fields then
+         Object.Version := Object.Version + 1;
+         Stmt.Save_Field (Name  => "version",
+                          Value => Object.Version);
+         Stmt.Set_Filter (Filter => "id = ? and version = ?");
+         Stmt.Add_Param (Value => Object.Get_Key);
+         Stmt.Add_Param (Value => Object.Version - 1);
+         declare
+            Result : Integer;
+         begin
+            Stmt.Execute (Result);
+            if Result /= 1 then
+               if Result /= 0 then
+                  raise ADO.Objects.UPDATE_ERROR;
+               else
+                  raise ADO.Objects.LAZY_LOCK;
+               end if;
+            end if;
+         end;
+      end if;
+   end Save;
+
+   procedure Create (Object  : in out Source_Impl;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Query : ADO.Statements.Insert_Statement
+                  := Session.Create_Statement (SOURCE_DEF'Access);
+      Result : Integer;
+   begin
+      Object.Version := 1;
+      Session.Allocate (Id => Object);
+      Query.Save_Field (Name  => COL_0_2_NAME, --  id
+                        Value => Object.Get_Key);
+      Query.Save_Field (Name  => COL_1_2_NAME, --  name
+                        Value => Object.Name);
+      Query.Save_Field (Name  => COL_2_2_NAME, --  label
+                        Value => Object.Label);
+      Query.Save_Field (Name  => COL_3_2_NAME, --  version
+                        Value => Object.Version);
+      Query.Save_Field (Name  => COL_4_2_NAME, --  host_id
+                        Value => Object.Host);
+      Query.Execute (Result);
+      if Result /= 1 then
+         raise ADO.Objects.INSERT_ERROR;
+      end if;
+      ADO.Objects.Set_Created (Object);
+   end Create;
+
+   procedure Delete (Object  : in out Source_Impl;
+                     Session : in out ADO.Sessions.Master_Session'Class) is
+      Stmt : ADO.Statements.Delete_Statement
+         := Session.Create_Statement (SOURCE_DEF'Access);
+   begin
+      Stmt.Set_Filter (Filter => "id = ?");
+      Stmt.Add_Param (Value => Object.Get_Key);
+      Stmt.Execute;
+   end Delete;
+
+   --  ------------------------------
+   --  Get the bean attribute identified by the name.
+   --  ------------------------------
+   overriding
+   function Get_Value (From : in Source_Ref;
+                       Name : in String) return Util.Beans.Objects.Object is
+      Obj  : ADO.Objects.Object_Record_Access;
+      Impl : access Source_Impl;
+   begin
+      if From.Is_Null then
+         return Util.Beans.Objects.Null_Object;
+      end if;
+      Obj := From.Get_Load_Object;
+      Impl := Source_Impl (Obj.all)'Access;
+      if Name = "id" then
+         return ADO.Objects.To_Object (Impl.Get_Key);
+      elsif Name = "name" then
+         return Util.Beans.Objects.To_Object (Impl.Name);
+      elsif Name = "label" then
+         return Util.Beans.Objects.To_Object (Impl.Label);
+      end if;
+      return Util.Beans.Objects.Null_Object;
+   end Get_Value;
+
+
+   procedure List (Object  : in out Source_Vector;
+                   Session : in out ADO.Sessions.Session'Class;
+                   Query   : in ADO.SQL.Query'Class) is
+      Stmt : ADO.Statements.Query_Statement
+        := Session.Create_Statement (Query, SOURCE_DEF'Access);
+   begin
+      Stmt.Execute;
+      Source_Vectors.Clear (Object);
+      while Stmt.Has_Elements loop
+         declare
+            Item : Source_Ref;
+            Impl : constant Source_Access := new Source_Impl;
+         begin
+            Impl.Load (Stmt, Session);
+            ADO.Objects.Set_Object (Item, Impl.all'Access);
+            Object.Append (Item);
+         end;
+         Stmt.Next;
+      end loop;
+   end List;
+
+   --  ------------------------------
+   --  Load the object from current iterator position
+   --  ------------------------------
+   procedure Load (Object  : in out Source_Impl;
+                   Stmt    : in out ADO.Statements.Query_Statement'Class;
+                   Session : in out ADO.Sessions.Session'Class) is
+   begin
+      Object.Set_Key_Value (Stmt.Get_Identifier (0));
+      Object.Name := Stmt.Get_Unbounded_String (1);
+      Object.Label := Stmt.Get_Unbounded_String (2);
+      if not Stmt.Is_Null (4) then
+         Object.Host.Set_Key_Value (Stmt.Get_Identifier (4), Session);
+      end if;
+      Object.Version := Stmt.Get_Integer (3);
+      ADO.Objects.Set_Created (Object);
+   end Load;
    function Series_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key is
       Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
                                        Of_Class => SERIES_DEF'Access);
@@ -198,6 +1034,23 @@ package body Hyperion.Monitoring.Models is
       return Impl.Source;
    end Get_Source;
 
+
+   procedure Set_Snapshot (Object : in out Series_Ref;
+                           Value  : in Hyperion.Monitoring.Models.Snapshot_Ref'Class) is
+      Impl : Series_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Object (Impl.all, 8, Impl.Snapshot, Value);
+   end Set_Snapshot;
+
+   function Get_Snapshot (Object : in Series_Ref)
+                  return Hyperion.Monitoring.Models.Snapshot_Ref'Class is
+      Impl : constant Series_Access
+         := Series_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Snapshot;
+   end Get_Snapshot;
+
    --  Copy of the object.
    procedure Copy (Object : in Series_Ref;
                    Into   : in out Series_Ref) is
@@ -218,6 +1071,7 @@ package body Hyperion.Monitoring.Models is
             Copy.Content := Impl.Content;
             Copy.Count := Impl.Count;
             Copy.Source := Impl.Source;
+            Copy.Snapshot := Impl.Snapshot;
          end;
       end if;
       Into := Result;
@@ -348,34 +1202,39 @@ package body Hyperion.Monitoring.Models is
          := Session.Create_Statement (SERIES_DEF'Access);
    begin
       if Object.Is_Modified (1) then
-         Stmt.Save_Field (Name  => COL_0_1_NAME, --  id
+         Stmt.Save_Field (Name  => COL_0_3_NAME, --  id
                           Value => Object.Get_Key);
          Object.Clear_Modified (1);
       end if;
       if Object.Is_Modified (3) then
-         Stmt.Save_Field (Name  => COL_2_1_NAME, --  start_date
+         Stmt.Save_Field (Name  => COL_2_3_NAME, --  start_date
                           Value => Object.Start_Date);
          Object.Clear_Modified (3);
       end if;
       if Object.Is_Modified (4) then
-         Stmt.Save_Field (Name  => COL_3_1_NAME, --  end_date
+         Stmt.Save_Field (Name  => COL_3_3_NAME, --  end_date
                           Value => Object.End_Date);
          Object.Clear_Modified (4);
       end if;
       if Object.Is_Modified (5) then
-         Stmt.Save_Field (Name  => COL_4_1_NAME, --  content
+         Stmt.Save_Field (Name  => COL_4_3_NAME, --  content
                           Value => Object.Content);
          Object.Clear_Modified (5);
       end if;
       if Object.Is_Modified (6) then
-         Stmt.Save_Field (Name  => COL_5_1_NAME, --  count
+         Stmt.Save_Field (Name  => COL_5_3_NAME, --  count
                           Value => Object.Count);
          Object.Clear_Modified (6);
       end if;
       if Object.Is_Modified (7) then
-         Stmt.Save_Field (Name  => COL_6_1_NAME, --  source
+         Stmt.Save_Field (Name  => COL_6_3_NAME, --  source_id
                           Value => Object.Source);
          Object.Clear_Modified (7);
+      end if;
+      if Object.Is_Modified (8) then
+         Stmt.Save_Field (Name  => COL_7_3_NAME, --  snapshot_id
+                          Value => Object.Snapshot);
+         Object.Clear_Modified (8);
       end if;
       if Stmt.Has_Save_Fields then
          Object.Version := Object.Version + 1;
@@ -407,20 +1266,22 @@ package body Hyperion.Monitoring.Models is
    begin
       Object.Version := 1;
       Session.Allocate (Id => Object);
-      Query.Save_Field (Name  => COL_0_1_NAME, --  id
+      Query.Save_Field (Name  => COL_0_3_NAME, --  id
                         Value => Object.Get_Key);
-      Query.Save_Field (Name  => COL_1_1_NAME, --  version
+      Query.Save_Field (Name  => COL_1_3_NAME, --  version
                         Value => Object.Version);
-      Query.Save_Field (Name  => COL_2_1_NAME, --  start_date
+      Query.Save_Field (Name  => COL_2_3_NAME, --  start_date
                         Value => Object.Start_Date);
-      Query.Save_Field (Name  => COL_3_1_NAME, --  end_date
+      Query.Save_Field (Name  => COL_3_3_NAME, --  end_date
                         Value => Object.End_Date);
-      Query.Save_Field (Name  => COL_4_1_NAME, --  content
+      Query.Save_Field (Name  => COL_4_3_NAME, --  content
                         Value => Object.Content);
-      Query.Save_Field (Name  => COL_5_1_NAME, --  count
+      Query.Save_Field (Name  => COL_5_3_NAME, --  count
                         Value => Object.Count);
-      Query.Save_Field (Name  => COL_6_1_NAME, --  source
+      Query.Save_Field (Name  => COL_6_3_NAME, --  source_id
                         Value => Object.Source);
+      Query.Save_Field (Name  => COL_7_3_NAME, --  snapshot_id
+                        Value => Object.Snapshot);
       Query.Execute (Result);
       if Result /= 1 then
          raise ADO.Objects.INSERT_ERROR;
@@ -467,26 +1328,6 @@ package body Hyperion.Monitoring.Models is
    end Get_Value;
 
 
-   procedure List (Object  : in out Series_Vector;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class) is
-      Stmt : ADO.Statements.Query_Statement
-        := Session.Create_Statement (Query, SERIES_DEF'Access);
-   begin
-      Stmt.Execute;
-      Series_Vectors.Clear (Object);
-      while Stmt.Has_Elements loop
-         declare
-            Item : Series_Ref;
-            Impl : constant Series_Access := new Series_Impl;
-         begin
-            Impl.Load (Stmt, Session);
-            ADO.Objects.Set_Object (Item, Impl.all'Access);
-            Object.Append (Item);
-         end;
-         Stmt.Next;
-      end loop;
-   end List;
 
    --  ------------------------------
    --  Load the object from current iterator position
@@ -503,392 +1344,10 @@ package body Hyperion.Monitoring.Models is
       if not Stmt.Is_Null (6) then
          Object.Source.Set_Key_Value (Stmt.Get_Identifier (6), Session);
       end if;
+      if not Stmt.Is_Null (7) then
+         Object.Snapshot.Set_Key_Value (Stmt.Get_Identifier (7), Session);
+      end if;
       Object.Version := Stmt.Get_Integer (1);
-      ADO.Objects.Set_Created (Object);
-   end Load;
-   function Snapshot_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key is
-      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
-                                       Of_Class => SNAPSHOT_DEF'Access);
-   begin
-      ADO.Objects.Set_Value (Result, Id);
-      return Result;
-   end Snapshot_Key;
-
-   function Snapshot_Key (Id : in String) return ADO.Objects.Object_Key is
-      Result : ADO.Objects.Object_Key (Of_Type  => ADO.Objects.KEY_INTEGER,
-                                       Of_Class => SNAPSHOT_DEF'Access);
-   begin
-      ADO.Objects.Set_Value (Result, Id);
-      return Result;
-   end Snapshot_Key;
-
-   function "=" (Left, Right : Snapshot_Ref'Class) return Boolean is
-   begin
-      return ADO.Objects.Object_Ref'Class (Left) = ADO.Objects.Object_Ref'Class (Right);
-   end "=";
-
-   procedure Set_Field (Object : in out Snapshot_Ref'Class;
-                        Impl   : out Snapshot_Access) is
-      Result : ADO.Objects.Object_Record_Access;
-   begin
-      Object.Prepare_Modify (Result);
-      Impl := Snapshot_Impl (Result.all)'Access;
-   end Set_Field;
-
-   --  Internal method to allocate the Object_Record instance
-   procedure Allocate (Object : in out Snapshot_Ref) is
-      Impl : Snapshot_Access;
-   begin
-      Impl := new Snapshot_Impl;
-      Impl.Date := ADO.DEFAULT_TIME;
-      Impl.Newattr := 0;
-      ADO.Objects.Set_Object (Object, Impl.all'Access);
-   end Allocate;
-
-   -- ----------------------------------------
-   --  Data object: Snapshot
-   -- ----------------------------------------
-
-   procedure Set_Id (Object : in out Snapshot_Ref;
-                     Value  : in ADO.Identifier) is
-      Impl : Snapshot_Access;
-   begin
-      Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Key_Value (Impl.all, 1, Value);
-   end Set_Id;
-
-   function Get_Id (Object : in Snapshot_Ref)
-                  return ADO.Identifier is
-      Impl : constant Snapshot_Access
-         := Snapshot_Impl (Object.Get_Object.all)'Access;
-   begin
-      return Impl.Get_Key_Value;
-   end Get_Id;
-
-
-   procedure Set_Date (Object : in out Snapshot_Ref;
-                       Value  : in Ada.Calendar.Time) is
-      Impl : Snapshot_Access;
-   begin
-      Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Time (Impl.all, 2, Impl.Date, Value);
-   end Set_Date;
-
-   function Get_Date (Object : in Snapshot_Ref)
-                  return Ada.Calendar.Time is
-      Impl : constant Snapshot_Access
-         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
-   begin
-      return Impl.Date;
-   end Get_Date;
-
-
-   procedure Set_Newattr (Object : in out Snapshot_Ref;
-                          Value  : in Integer) is
-      Impl : Snapshot_Access;
-   begin
-      Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Integer (Impl.all, 3, Impl.Newattr, Value);
-   end Set_Newattr;
-
-   function Get_Newattr (Object : in Snapshot_Ref)
-                  return Integer is
-      Impl : constant Snapshot_Access
-         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
-   begin
-      return Impl.Newattr;
-   end Get_Newattr;
-
-
-   procedure Set_Host (Object : in out Snapshot_Ref;
-                       Value  : in Hyperion.Hosts.Models.Host_Ref'Class) is
-      Impl : Snapshot_Access;
-   begin
-      Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Object (Impl.all, 4, Impl.Host, Value);
-   end Set_Host;
-
-   function Get_Host (Object : in Snapshot_Ref)
-                  return Hyperion.Hosts.Models.Host_Ref'Class is
-      Impl : constant Snapshot_Access
-         := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
-   begin
-      return Impl.Host;
-   end Get_Host;
-
-   --  Copy of the object.
-   procedure Copy (Object : in Snapshot_Ref;
-                   Into   : in out Snapshot_Ref) is
-      Result : Snapshot_Ref;
-   begin
-      if not Object.Is_Null then
-         declare
-            Impl : constant Snapshot_Access
-              := Snapshot_Impl (Object.Get_Load_Object.all)'Access;
-            Copy : constant Snapshot_Access
-              := new Snapshot_Impl;
-         begin
-            ADO.Objects.Set_Object (Result, Copy.all'Access);
-            Copy.Copy (Impl.all);
-            Copy.Date := Impl.Date;
-            Copy.Newattr := Impl.Newattr;
-            Copy.Host := Impl.Host;
-         end;
-      end if;
-      Into := Result;
-   end Copy;
-
-   procedure Find (Object  : in out Snapshot_Ref;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class;
-                   Found   : out Boolean) is
-      Impl  : constant Snapshot_Access := new Snapshot_Impl;
-   begin
-      Impl.Find (Session, Query, Found);
-      if Found then
-         ADO.Objects.Set_Object (Object, Impl.all'Access);
-      else
-         ADO.Objects.Set_Object (Object, null);
-         Destroy (Impl);
-      end if;
-   end Find;
-
-   procedure Load (Object  : in out Snapshot_Ref;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Id      : in ADO.Identifier) is
-      Impl  : constant Snapshot_Access := new Snapshot_Impl;
-      Found : Boolean;
-      Query : ADO.SQL.Query;
-   begin
-      Query.Bind_Param (Position => 1, Value => Id);
-      Query.Set_Filter ("id = ?");
-      Impl.Find (Session, Query, Found);
-      if not Found then
-         Destroy (Impl);
-         raise ADO.Objects.NOT_FOUND;
-      end if;
-      ADO.Objects.Set_Object (Object, Impl.all'Access);
-   end Load;
-
-   procedure Load (Object  : in out Snapshot_Ref;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Id      : in ADO.Identifier;
-                   Found   : out Boolean) is
-      Impl  : constant Snapshot_Access := new Snapshot_Impl;
-      Query : ADO.SQL.Query;
-   begin
-      Query.Bind_Param (Position => 1, Value => Id);
-      Query.Set_Filter ("id = ?");
-      Impl.Find (Session, Query, Found);
-      if not Found then
-         Destroy (Impl);
-      else
-         ADO.Objects.Set_Object (Object, Impl.all'Access);
-      end if;
-   end Load;
-
-   procedure Save (Object  : in out Snapshot_Ref;
-                   Session : in out ADO.Sessions.Master_Session'Class) is
-      Impl : ADO.Objects.Object_Record_Access := Object.Get_Object;
-   begin
-      if Impl = null then
-         Impl := new Snapshot_Impl;
-         ADO.Objects.Set_Object (Object, Impl);
-      end if;
-      if not ADO.Objects.Is_Created (Impl.all) then
-         Impl.Create (Session);
-      else
-         Impl.Save (Session);
-      end if;
-   end Save;
-
-   procedure Delete (Object  : in out Snapshot_Ref;
-                     Session : in out ADO.Sessions.Master_Session'Class) is
-      Impl : constant ADO.Objects.Object_Record_Access := Object.Get_Object;
-   begin
-      if Impl /= null then
-         Impl.Delete (Session);
-      end if;
-   end Delete;
-
-   --  --------------------
-   --  Free the object
-   --  --------------------
-   procedure Destroy (Object : access Snapshot_Impl) is
-      type Snapshot_Impl_Ptr is access all Snapshot_Impl;
-      procedure Unchecked_Free is new Ada.Unchecked_Deallocation
-              (Snapshot_Impl, Snapshot_Impl_Ptr);
-      pragma Warnings (Off, "*redundant conversion*");
-      Ptr : Snapshot_Impl_Ptr := Snapshot_Impl (Object.all)'Access;
-      pragma Warnings (On, "*redundant conversion*");
-   begin
-      Unchecked_Free (Ptr);
-   end Destroy;
-
-   procedure Find (Object  : in out Snapshot_Impl;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class;
-                   Found   : out Boolean) is
-      Stmt : ADO.Statements.Query_Statement
-          := Session.Create_Statement (Query, SNAPSHOT_DEF'Access);
-   begin
-      Stmt.Execute;
-      if Stmt.Has_Elements then
-         Object.Load (Stmt, Session);
-         Stmt.Next;
-         Found := not Stmt.Has_Elements;
-      else
-         Found := False;
-      end if;
-   end Find;
-
-   overriding
-   procedure Load (Object  : in out Snapshot_Impl;
-                   Session : in out ADO.Sessions.Session'Class) is
-      Found : Boolean;
-      Query : ADO.SQL.Query;
-      Id    : constant ADO.Identifier := Object.Get_Key_Value;
-   begin
-      Query.Bind_Param (Position => 1, Value => Id);
-      Query.Set_Filter ("id = ?");
-      Object.Find (Session, Query, Found);
-      if not Found then
-         raise ADO.Objects.NOT_FOUND;
-      end if;
-   end Load;
-
-   procedure Save (Object  : in out Snapshot_Impl;
-                   Session : in out ADO.Sessions.Master_Session'Class) is
-      Stmt : ADO.Statements.Update_Statement
-         := Session.Create_Statement (SNAPSHOT_DEF'Access);
-   begin
-      if Object.Is_Modified (1) then
-         Stmt.Save_Field (Name  => COL_0_2_NAME, --  id
-                          Value => Object.Get_Key);
-         Object.Clear_Modified (1);
-      end if;
-      if Object.Is_Modified (2) then
-         Stmt.Save_Field (Name  => COL_1_2_NAME, --  date
-                          Value => Object.Date);
-         Object.Clear_Modified (2);
-      end if;
-      if Object.Is_Modified (3) then
-         Stmt.Save_Field (Name  => COL_2_2_NAME, --  newAttr
-                          Value => Object.Newattr);
-         Object.Clear_Modified (3);
-      end if;
-      if Object.Is_Modified (4) then
-         Stmt.Save_Field (Name  => COL_3_2_NAME, --  host_id
-                          Value => Object.Host);
-         Object.Clear_Modified (4);
-      end if;
-      if Stmt.Has_Save_Fields then
-         Stmt.Set_Filter (Filter => "id = ?");
-         Stmt.Add_Param (Value => Object.Get_Key);
-         declare
-            Result : Integer;
-         begin
-            Stmt.Execute (Result);
-            if Result /= 1 then
-               if Result /= 0 then
-                  raise ADO.Objects.UPDATE_ERROR;
-               end if;
-            end if;
-         end;
-      end if;
-   end Save;
-
-   procedure Create (Object  : in out Snapshot_Impl;
-                     Session : in out ADO.Sessions.Master_Session'Class) is
-      Query : ADO.Statements.Insert_Statement
-                  := Session.Create_Statement (SNAPSHOT_DEF'Access);
-      Result : Integer;
-   begin
-      Session.Allocate (Id => Object);
-      Query.Save_Field (Name  => COL_0_2_NAME, --  id
-                        Value => Object.Get_Key);
-      Query.Save_Field (Name  => COL_1_2_NAME, --  date
-                        Value => Object.Date);
-      Query.Save_Field (Name  => COL_2_2_NAME, --  newAttr
-                        Value => Object.Newattr);
-      Query.Save_Field (Name  => COL_3_2_NAME, --  host_id
-                        Value => Object.Host);
-      Query.Execute (Result);
-      if Result /= 1 then
-         raise ADO.Objects.INSERT_ERROR;
-      end if;
-      ADO.Objects.Set_Created (Object);
-   end Create;
-
-   procedure Delete (Object  : in out Snapshot_Impl;
-                     Session : in out ADO.Sessions.Master_Session'Class) is
-      Stmt : ADO.Statements.Delete_Statement
-         := Session.Create_Statement (SNAPSHOT_DEF'Access);
-   begin
-      Stmt.Set_Filter (Filter => "id = ?");
-      Stmt.Add_Param (Value => Object.Get_Key);
-      Stmt.Execute;
-   end Delete;
-
-   --  ------------------------------
-   --  Get the bean attribute identified by the name.
-   --  ------------------------------
-   overriding
-   function Get_Value (From : in Snapshot_Ref;
-                       Name : in String) return Util.Beans.Objects.Object is
-      Obj  : ADO.Objects.Object_Record_Access;
-      Impl : access Snapshot_Impl;
-   begin
-      if From.Is_Null then
-         return Util.Beans.Objects.Null_Object;
-      end if;
-      Obj := From.Get_Load_Object;
-      Impl := Snapshot_Impl (Obj.all)'Access;
-      if Name = "id" then
-         return ADO.Objects.To_Object (Impl.Get_Key);
-      elsif Name = "date" then
-         return Util.Beans.Objects.Time.To_Object (Impl.Date);
-      elsif Name = "newAttr" then
-         return Util.Beans.Objects.To_Object (Long_Long_Integer (Impl.Newattr));
-      end if;
-      return Util.Beans.Objects.Null_Object;
-   end Get_Value;
-
-
-   procedure List (Object  : in out Snapshot_Vector;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class) is
-      Stmt : ADO.Statements.Query_Statement
-        := Session.Create_Statement (Query, SNAPSHOT_DEF'Access);
-   begin
-      Stmt.Execute;
-      Snapshot_Vectors.Clear (Object);
-      while Stmt.Has_Elements loop
-         declare
-            Item : Snapshot_Ref;
-            Impl : constant Snapshot_Access := new Snapshot_Impl;
-         begin
-            Impl.Load (Stmt, Session);
-            ADO.Objects.Set_Object (Item, Impl.all'Access);
-            Object.Append (Item);
-         end;
-         Stmt.Next;
-      end loop;
-   end List;
-
-   --  ------------------------------
-   --  Load the object from current iterator position
-   --  ------------------------------
-   procedure Load (Object  : in out Snapshot_Impl;
-                   Stmt    : in out ADO.Statements.Query_Statement'Class;
-                   Session : in out ADO.Sessions.Session'Class) is
-   begin
-      Object.Set_Key_Value (Stmt.Get_Identifier (0));
-      Object.Date := Stmt.Get_Time (1);
-      Object.Newattr := Stmt.Get_Integer (2);
-      if not Stmt.Is_Null (3) then
-         Object.Host.Set_Key_Value (Stmt.Get_Identifier (3), Session);
-      end if;
       ADO.Objects.Set_Created (Object);
    end Load;
 
