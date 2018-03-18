@@ -15,18 +15,20 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Servlet.Core.Measures;
+with Servlet.Core.Files;
+with Servlet.Filters.Dump;
+with Servlet.Filters.Cache_Control;
+with Servlet.Core.Rest;
+with Servlet.Security.OAuth;
+with Servlet.Security.Filters.OAuth;
+
 with ASF.Servlets.Faces;
-with ASF.Servlets.Files;
 with ASF.Servlets.Ajax;
-with ASF.Filters.Dump;
-with ASF.Filters.Cache_Control;
-with ASF.Servlets.Measures;
 with ASF.Applications;
 with ASF.Converters.Sizes;
 
 with ASF.Security.Servlets;
-with Servlet.Core.Rest;
-with Servlet.Security.OAuth;
 with Security.OAuth.Servers;
 with Security.OAuth.File_Registry;
 
@@ -47,7 +49,6 @@ with AWA.Jobs.Modules;
 with AWA.Counters.Modules;
 with AWA.Converters.Dates;
 with Hyperion.Hosts.Modules;
-with Hyperion.Rest.Servers;
 with Hyperion.Agents.Modules;
 package Hyperion.Applications is
 
@@ -60,6 +61,12 @@ package Hyperion.Applications is
    --  Initialize the application.
    procedure Initialize (App    : in Application_Access;
                          Config : in ASF.Applications.Config);
+
+   --  Initialize the application configuration properties.  Properties defined in <b>Conf</b>
+   --  are expanded by using the EL expression resolver.
+   overriding
+   procedure Initialize_Config (App  : in out Application;
+                                Conf : in out ASF.Applications.Config);
 
    --  Initialize the servlets provided by the application.
    --  This procedure is called by <b>Initialize</b>.
@@ -87,11 +94,11 @@ private
       --  Application servlets and filters (add new servlet and filter instances here).
       Faces              : aliased ASF.Servlets.Faces.Faces_Servlet;
       Ajax               : aliased ASF.Servlets.Ajax.Ajax_Servlet;
-      Files              : aliased ASF.Servlets.Files.File_Servlet;
-      Dump               : aliased ASF.Filters.Dump.Dump_Filter;
+      Files              : aliased Servlet.Core.Files.File_Servlet;
+      Dump               : aliased Servlet.Filters.Dump.Dump_Filter;
       Service_Filter     : aliased AWA.Services.Filters.Service_Filter;
-      Measures           : aliased ASF.Servlets.Measures.Measure_Servlet;
-      No_Cache           : aliased ASF.Filters.Cache_Control.Cache_Control_Filter;
+      Measures           : aliased Servlet.Core.Measures.Measure_Servlet;
+      No_Cache           : aliased Servlet.Filters.Cache_Control.Cache_Control_Filter;
       Api                : aliased Servlet.Core.Rest.Rest_Servlet;
 
       --  Authentication servlet and filter.
@@ -121,6 +128,7 @@ private
       Api_Auth           : aliased Security.OAuth.Servers.Auth_Manager;
       Apps               : aliased Security.OAuth.File_Registry.File_Application_Manager;
       Realm              : aliased Security.OAuth.File_Registry.File_Realm_Manager;
+      Api_Filter         : aliased Servlet.Security.Filters.OAuth.Auth_Filter;
 
       --  Add your modules here.
       Host_Module        : aliased Hyperion.Hosts.Modules.Host_Module;
