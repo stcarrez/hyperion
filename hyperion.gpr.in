@@ -3,6 +3,7 @@ with "@UTIL_DIR@util";
 with "@EL_DIR@el";
 with "@ASF_DIR@asf";
 with "@SERVLET_DIR@servlet";
+with "@SWAGGER_DIR@swagger_server";
 with "@ADO_DIR@ado";
 with "@AWA_DIR@awa";
 with "@AWA_DIR@awa_workspaces";
