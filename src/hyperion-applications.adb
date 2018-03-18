@@ -67,6 +67,8 @@ package body Hyperion.Applications is
       App.Add_Servlet (Name => "measures", Server => App.Self.Measures'Access);
       App.Add_Servlet (Name => "auth", Server => App.Self.Auth'Access);
       App.Add_Servlet (Name => "verify-auth", Server => App.Self.Verify_Auth'Access);
+      App.Add_Servlet (Name => "api", Server => App.Self.Api'Access);
+      App.Add_Servlet (Name => "oauth", Server => App.Self.OAuth'Access);
    end Initialize_Servlets;
 
    --  ------------------------------
@@ -164,6 +166,10 @@ package body Hyperion.Applications is
                 Name   => Hyperion.Hosts.Modules.NAME,
                 URI    => "hosts",
                 Module => App.Host_Module'Access);
+      Register (App    => App.Self.all'Access,
+                Name   => Hyperion.Agents.Modules.NAME,
+                URI    => "agents",
+                Module => App.Agent_Module'Access);
    end Initialize_Modules;
 
 end Hyperion.Applications;
