@@ -16,17 +16,13 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 
-with Ada.IO_Exceptions;
-
 with Util.Log.Loggers;
 with Util.Properties;
 
-with ASF.Applications;
 with ASF.Applications.Main;
-with ASF.Applications.Main.Configs;
 
 with AWA.Applications.Factory;
-
+with Hyperion.Rest.Servers;
 package body Hyperion.Applications is
 
    use AWA.Applications;
@@ -48,7 +44,29 @@ package body Hyperion.Applications is
       App.Self := App;
       App.Initialize (Config, Fact);
       App.Set_Global ("contextPath", CONTEXT_PATH);
+
+      --  Configure the authorization manager.
+      App.Api_Auth.Set_Application_Manager (App.Apps'Unchecked_Access);
+      App.Api_Auth.Set_Realm_Manager (App.Realm'Unchecked_Access);
+      App.OAuth.Set_Auth_Manager (App.Api_Auth'Unchecked_Access);
+      App.Api_Filter.Set_Auth_Manager (App.Api_Auth'Unchecked_Access);
+
+      --  Register the REST API.
+      Hyperion.Rest.Servers.Server_Impl.Register (App.all);
    end Initialize;
+
+   --  ------------------------------
+   --  Initialize the application configuration properties.  Properties defined in <b>Conf</b>
+   --  are expanded by using the EL expression resolver.
+   --  ------------------------------
+   overriding
+   procedure Initialize_Config (App  : in out Application;
+                                Conf : in out ASF.Applications.Config) is
+   begin
+      AWA.Applications.Application (App).Initialize_Config (Conf);
+      App.Apps.Load (Conf, Conf.Get ("swagger.apps", "apps"));
+      App.Api_Auth.Set_Private_Key (Conf.Get ("swagger.key"));
+   end Initialize_Config;
 
    --  ------------------------------
    --  Initialize the servlets provided by the application.
@@ -86,6 +104,7 @@ package body Hyperion.Applications is
       App.Add_Filter (Name => "measures", Filter => App.Self.Measures'Access);
       App.Add_Filter (Name => "service", Filter => App.Self.Service_Filter'Access);
       App.Add_Filter (Name => "no-cache", Filter => App.Self.No_Cache'Access);
+      App.Add_Filter (Name => "oauth", Filter => App.Self.Api_Filter'Access);
    end Initialize_Filters;
 
    --  ------------------------------
