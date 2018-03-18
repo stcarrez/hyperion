@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------
 --  hyperion -- hyperion applications
---  Copyright (C) 2017 Stephane Carrez
+--  Copyright (C) 2017, 2018 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,10 @@ with ASF.Applications;
 with ASF.Converters.Sizes;
 
 with ASF.Security.Servlets;
+with Servlet.Core.Rest;
+with Servlet.Security.OAuth;
+with Security.OAuth.Servers;
+with Security.OAuth.File_Registry;
 
 with AWA.Users.Servlets;
 with AWA.Users.Modules;
@@ -43,6 +47,8 @@ with AWA.Jobs.Modules;
 with AWA.Counters.Modules;
 with AWA.Converters.Dates;
 with Hyperion.Hosts.Modules;
+with Hyperion.Rest.Servers;
+with Hyperion.Agents.Modules;
 package Hyperion.Applications is
 
    CONFIG_PATH  : constant String := "hyperion";
@@ -86,10 +92,12 @@ private
       Service_Filter     : aliased AWA.Services.Filters.Service_Filter;
       Measures           : aliased ASF.Servlets.Measures.Measure_Servlet;
       No_Cache           : aliased ASF.Filters.Cache_Control.Cache_Control_Filter;
+      Api                : aliased Servlet.Core.Rest.Rest_Servlet;
 
       --  Authentication servlet and filter.
       Auth               : aliased ASF.Security.Servlets.Request_Auth_Servlet;
       Verify_Auth        : aliased AWA.Users.Servlets.Verify_Auth_Servlet;
+      OAuth              : aliased Servlet.Security.OAuth.Token_Servlet;
 
       --  Converters shared by web requests.
       Rel_Date_Converter : aliased AWA.Converters.Dates.Relative_Date_Converter;
@@ -109,8 +117,14 @@ private
       Preview_Module     : aliased AWA.Wikis.Previews.Preview_Module;
       Counter_Module     : aliased AWA.Counters.Modules.Counter_Module;
 
+      --  REST security
+      Api_Auth           : aliased Security.OAuth.Servers.Auth_Manager;
+      Apps               : aliased Security.OAuth.File_Registry.File_Application_Manager;
+      Realm              : aliased Security.OAuth.File_Registry.File_Realm_Manager;
+
       --  Add your modules here.
-      Host_Module  : aliased Hyperion.Hosts.Modules.Host_Module;
+      Host_Module        : aliased Hyperion.Hosts.Modules.Host_Module;
+      Agent_Module       : aliased Hyperion.Agents.Modules.Agent_Module;
    end record;
 
 end Hyperion.Applications;
