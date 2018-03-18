@@ -23,7 +23,11 @@ package body Hyperion.Rest.Servers is
        Result  : out Hyperion.Rest.Models.Agent_Type;
        Context : in out Swagger.Servers.Context_Type) is
    begin
-      null;
+      Result.Name   := Name;
+      Result.Ip     := Ip;
+      Result.Key    := Agent_Key;
+      Result.Status := Swagger.To_UString ("");
+      Result.Id     := 0;
    end Register_Agent;
 
    --  Create a host
