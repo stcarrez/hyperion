@@ -8,9 +8,16 @@ include rules.mk
 # Model generation arguments with Dynamo
 # --package XXX.XXX.Models db uml/xxx.zargo
 DYNAMO_ARGS=\
+  --package Hyperion.Agents.Models \
   --package Hyperion.Hosts.Models \
   --package Hyperion.Monitoring.Models \
   db uml/hyperion.zargo
+
+SWAGGER=java -jar swagger-codegen-cli.jar
+
+generate-swagger:
+	$(SWAGGER) generate -l ada-server -i hyperion.yaml \
+            -DprojectName=hyperion --model-package Hyperion.Rest
 
 post-build:
 ifneq (${PLUGINS},)
