@@ -14,7 +14,7 @@ HYPERION_MICRO_VERSION=0
 HYPERION_VERSION=$HYPERION_MAJOR_VERSION.$HYPERION_MINOR_VERSION.$HYPERION_MICRO_VERSION
 AM_GNAT_CHECK_GPRBUILD
 # checking for local tools
-AC_PROG_CC
+
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -62,6 +62,17 @@ AM_GNAT_FIND_PROJECT([ada-el],[Ada Expression Language Library],[el],
 AC_SUBST(EL_DIR)
 
 ##########################################
+# Ada Servlet library
+##########################################
+AM_GNAT_FIND_PROJECT([ada-servlet],[Ada Servlet Library],[servlet],
+  [git@github.com:stcarrez/ada-servlet.git],
+  [Building Atlas requires the Ada Servlet Library.],
+  [
+    SERVLET_DIR=${gnat_project_dir_servlet}
+  ])
+AC_SUBST(SERVLET_DIR)
+
+##########################################
 # Ada Server Faces library
 ##########################################
 AM_GNAT_FIND_PROJECT([ada-asf],[Ada Server Faces],[asf],
@@ -84,15 +95,15 @@ AM_GNAT_FIND_PROJECT([ada-security],[Ada Security Library],[security],
 AC_SUBST(SECURITY_DIR)
 
 ##########################################
-# Ada Servlet library
+# Ada Swagger library
 ##########################################
-AM_GNAT_FIND_PROJECT([ada-servlet],[Ada Servlet Library],[servlet],
-  [git@github.com:stcarrez/ada-servlet.git],
-  [Building Atlas requires the Ada Servlet Library.],
+AM_GNAT_FIND_PROJECT([swagger-ada],[Swagger Ada Library],[swagger],
+  [git@github.com:stcarrez/swagger-ada.git],
+  [Building Hyperion requires the Ada Swagger Library.],
   [
-    SERVLET_DIR=${gnat_project_dir_servlet}
+    SERVLET_DIR=${gnat_project_dir_swagger}
   ])
-AC_SUBST(SERVLET_DIR)
+AC_SUBST(SWAGGER_DIR)
 
 ##########################################
 # Ada Database Objects library
