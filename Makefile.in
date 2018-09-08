@@ -13,10 +13,10 @@ DYNAMO_ARGS=\
   --package Hyperion.Monitoring.Models \
   db uml/hyperion.zargo
 
-SWAGGER=java -jar swagger-codegen-cli.jar
+SWAGGER=java -jar openapi-generator-cli.jar
 
 generate-swagger:
-	$(SWAGGER) generate -l ada-server -i hyperion.yaml \
+	$(SWAGGER) generate --generator-name ada-server -i hyperion.yaml \
             -DprojectName=hyperion --model-package Hyperion.Rest
 
 post-build:
