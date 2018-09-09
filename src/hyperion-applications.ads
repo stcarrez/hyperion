@@ -36,7 +36,6 @@ with AWA.Users.Servlets;
 with AWA.Users.Modules;
 with AWA.Mail.Modules;
 with AWA.Comments.Modules;
-with AWA.Blogs.Modules;
 with AWA.Tags.Modules;
 with AWA.Storages.Modules;
 with AWA.Applications;
@@ -113,7 +112,6 @@ private
       --  The application modules.
       User_Module        : aliased AWA.Users.Modules.User_Module;
       Workspace_Module   : aliased AWA.Workspaces.Modules.Workspace_Module;
-      Blog_Module        : aliased AWA.Blogs.Modules.Blog_Module;
       Mail_Module        : aliased AWA.Mail.Modules.Mail_Module;
       Comment_Module     : aliased AWA.Comments.Modules.Comment_Module;
       Storage_Module     : aliased AWA.Storages.Modules.Storage_Module;
