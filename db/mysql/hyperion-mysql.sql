@@ -1,7 +1,7 @@
 /* File generated automatically by dynamo */
 /* The Agent table holds the information about a monitoring agent
 who is allowed to connect to the Hyperion server. */
-CREATE TABLE Agent (
+CREATE TABLE hyperion_agent (
   /* the agent identifier */
   `id` BIGINT NOT NULL,
   /* the agent host name */
@@ -43,7 +43,9 @@ CREATE TABLE hyperion_host (
   /* host description text */
   `description` VARCHAR(255) BINARY NOT NULL,
   /* the host status type */
-  `status`  NOT NULL,
+  `status` TINYINT NOT NULL,
+  /*  */
+  `agent_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*  */
@@ -109,7 +111,7 @@ CREATE TABLE hyperion_source (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 INSERT INTO entity_type (name) VALUES
-("Agent")
+("hyperion_agent")
 ,("hyperion_host_desc")
 ,("hyperion_host")
 ,("hyperion_host_info")

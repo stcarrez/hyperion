@@ -83,8 +83,7 @@ CREATE TABLE awa_queue (
   `name` VARCHAR(255) BINARY NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/* The application that is granted access to the database.
- */
+/* The application that is granted access to the database. */
 CREATE TABLE awa_application (
   /* the application identifier. */
   `id` BIGINT NOT NULL,
@@ -228,8 +227,7 @@ CREATE TABLE awa_session (
   `user_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/* The User entity represents a user that can access and use the application.
- */
+/* The User entity represents a user that can access and use the application. */
 CREATE TABLE awa_user (
   /* the user first name. */
   `first_name` VARCHAR(255) BINARY NOT NULL,
@@ -360,141 +358,15 @@ CREATE TABLE awa_comment (
   /* the entity type that identifies the table to which the comment is associated. */
   `entity_type` INTEGER NOT NULL,
   /* the comment status to decide whether the comment is visible (published) or not. */
-  `status` integer NOT NULL,
+  `status` INTEGER NOT NULL,
   /* the comment format type. */
-  `format` integer NOT NULL,
+  `format` INTEGER NOT NULL,
   /*  */
   `author_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 INSERT INTO entity_type (name) VALUES
 ("awa_comment")
-;
-/* Copied from awa-tags-mysql.sql*/
-/* File generated automatically by dynamo */
-/* The tag definition. */
-CREATE TABLE awa_tag (
-  /* the tag identifier */
-  `id` BIGINT NOT NULL,
-  /* the tag name */
-  `name` VARCHAR(255) BINARY NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*  */
-CREATE TABLE awa_tagged_entity (
-  /* the tag entity identifier */
-  `id` BIGINT NOT NULL,
-  /* Title: Tag model
-Date: 2013-02-23the database entity to which the tag is associated */
-  `for_entity_id` BIGINT NOT NULL,
-  /* the entity type */
-  `entity_type` INTEGER NOT NULL,
-  /*  */
-  `tag_id` BIGINT NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO entity_type (name) VALUES
-("awa_tag")
-,("awa_tagged_entity")
-;
-/* Copied from awa_counters-mysql.sql*/
-/* File generated automatically by dynamo */
-/*  */
-CREATE TABLE awa_counter (
-  /* the object associated with the counter. */
-  `object_id` BIGINT NOT NULL,
-  /* the day associated with the counter. */
-  `date` DATE NOT NULL,
-  /* the counter value. */
-  `counter` INTEGER NOT NULL,
-  /* the counter definition identifier. */
-  `definition_id` BIGINT NOT NULL,
-  PRIMARY KEY (`object_id`, `date`, `definition_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/* A counter definition defines what the counter represents. It uniquely identifies
-the counter for the Counter table. A counter may be associated with a database
-table. In that case, the counter definition has a relation to the corresponding Entity_Type. */
-CREATE TABLE awa_counter_definition (
-  /* the counter name. */
-  `name` VARCHAR(255) BINARY NOT NULL,
-  /* the counter unique id. */
-  `id` INTEGER NOT NULL,
-  /* the optional entity type that identifies the database table. */
-  `entity_type` INTEGER ,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*  */
-CREATE TABLE awa_visit (
-  /* the entity identifier. */
-  `object_id` BIGINT NOT NULL,
-  /* the number of times the entity was visited by the user. */
-  `counter` INTEGER NOT NULL,
-  /* the date and time when the entity was last visited. */
-  `date` DATETIME NOT NULL,
-  /* the user who visited the entity. */
-  `user` BIGINT NOT NULL,
-  /* the counter definition identifier. */
-  `definition_id` BIGINT NOT NULL,
-  PRIMARY KEY (`object_id`, `user`, `definition_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO entity_type (name) VALUES
-("awa_counter")
-,("awa_counter_definition")
-,("awa_visit")
-;
-/* Copied from awa-blogs-mysql.sql*/
-/* File generated automatically by dynamo */
-/*  */
-CREATE TABLE awa_blog (
-  /* the blog identifier */
-  `id` BIGINT NOT NULL,
-  /* the blog name */
-  `name` VARCHAR(255) BINARY NOT NULL,
-  /* the version */
-  `version` INTEGER NOT NULL,
-  /* the blog uuid */
-  `uid` VARCHAR(255) BINARY NOT NULL,
-  /* the blog creation date */
-  `create_date` DATETIME NOT NULL,
-  /* the date when the blog was updated */
-  `update_date` DATETIME NOT NULL,
-  /* The blog base URL. */
-  `url` VARCHAR(255) BINARY NOT NULL,
-  /* the workspace that this blog belongs to */
-  `workspace_id` BIGINT NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*  */
-CREATE TABLE awa_post (
-  /* the post identifier */
-  `id` BIGINT NOT NULL,
-  /* the post title */
-  `title` VARCHAR(255) BINARY NOT NULL,
-  /* the post text content */
-  `text` TEXT NOT NULL,
-  /* the post creation date */
-  `create_date` DATETIME NOT NULL,
-  /* the post URI */
-  `uri` VARCHAR(255) BINARY NOT NULL,
-  /*  */
-  `version` INTEGER NOT NULL,
-  /* the post publication date */
-  `publish_date` DATETIME ,
-  /* the post status */
-  `status` TINYINT NOT NULL,
-  /*  */
-  `allow_comments` TINYINT NOT NULL,
-  /* the number of times the post was read. */
-  `read_count` INTEGER NOT NULL,
-  /*  */
-  `author_id` BIGINT NOT NULL,
-  /*  */
-  `blog_id` BIGINT NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO entity_type (name) VALUES
-("awa_blog")
-,("awa_post")
 ;
 /* Copied from awa-storages-mysql.sql*/
 /* File generated automatically by dynamo */
@@ -589,6 +461,33 @@ INSERT INTO entity_type (name) VALUES
 ,("awa_storage_folder")
 ,("awa_store_local")
 ;
+/* Copied from awa-tags-mysql.sql*/
+/* File generated automatically by dynamo */
+/* The tag definition. */
+CREATE TABLE awa_tag (
+  /* the tag identifier */
+  `id` BIGINT NOT NULL,
+  /* the tag name */
+  `name` VARCHAR(255) BINARY NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*  */
+CREATE TABLE awa_tagged_entity (
+  /* the tag entity identifier */
+  `id` BIGINT NOT NULL,
+  /* Title: Tag model
+Date: 2013-02-23the database entity to which the tag is associated */
+  `for_entity_id` BIGINT NOT NULL,
+  /* the entity type */
+  `entity_type` INTEGER NOT NULL,
+  /*  */
+  `tag_id` BIGINT NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO entity_type (name) VALUES
+("awa_tag")
+,("awa_tagged_entity")
+;
 /* Copied from awa-jobs-mysql.sql*/
 /* File generated automatically by dynamo */
 /* The job is associated with a dispatching queue. */
@@ -631,8 +530,7 @@ INSERT INTO entity_type (name) VALUES
 /* - The workspace contains one or several folders.
 - Each image folder contains a set of images that have been uploaded by the user.
 - An image can be visible if a user has an ACL permission to read the associated folder.
-- An image marked as 'public=True' can be visible by anybody
- */
+- An image marked as 'public=True' can be visible by anybody */
 CREATE TABLE awa_image (
   /* the image identifier */
   `id` BIGINT NOT NULL,
@@ -662,6 +560,51 @@ CREATE TABLE awa_image (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 INSERT INTO entity_type (name) VALUES
 ("awa_image")
+;
+/* Copied from awa_counters-mysql.sql*/
+/* File generated automatically by dynamo */
+/*  */
+CREATE TABLE awa_counter (
+  /* the object associated with the counter. */
+  `object_id` BIGINT NOT NULL,
+  /* the day associated with the counter. */
+  `date` DATE NOT NULL,
+  /* the counter value. */
+  `counter` INTEGER NOT NULL,
+  /* the counter definition identifier. */
+  `definition_id` BIGINT NOT NULL,
+  PRIMARY KEY (`object_id`, `date`, `definition_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/* A counter definition defines what the counter represents. It uniquely identifies
+the counter for the Counter table. A counter may be associated with a database
+table. In that case, the counter definition has a relation to the corresponding Entity_Type. */
+CREATE TABLE awa_counter_definition (
+  /* the counter name. */
+  `name` VARCHAR(255) BINARY NOT NULL,
+  /* the counter unique id. */
+  `id` INTEGER NOT NULL,
+  /* the optional entity type that identifies the database table. */
+  `entity_type` INTEGER ,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*  */
+CREATE TABLE awa_visit (
+  /* the entity identifier. */
+  `object_id` BIGINT NOT NULL,
+  /* the number of times the entity was visited by the user. */
+  `counter` INTEGER NOT NULL,
+  /* the date and time when the entity was last visited. */
+  `date` DATETIME NOT NULL,
+  /* the user who visited the entity. */
+  `user` BIGINT NOT NULL,
+  /* the counter definition identifier. */
+  `definition_id` BIGINT NOT NULL,
+  PRIMARY KEY (`object_id`, `user`, `definition_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO entity_type (name) VALUES
+("awa_counter")
+,("awa_counter_definition")
+,("awa_visit")
 ;
 /* Copied from awa-wikis-mysql.sql*/
 /* File generated automatically by dynamo */
@@ -729,8 +672,7 @@ CREATE TABLE awa_wiki_space (
   `create_date` DATETIME NOT NULL,
   /* the left panel side wiki text for every page. */
   `left_side` TEXT NOT NULL,
-  /* the right panel wiki text for every page.
- */
+  /* the right panel wiki text for every page. */
   `right_side` TEXT NOT NULL,
   /* the default wiki page format. */
   `format` TINYINT NOT NULL,
@@ -745,6 +687,21 @@ INSERT INTO entity_type (name) VALUES
 ;
 /* Copied from hyperion-mysql.sql*/
 /* File generated automatically by dynamo */
+/* The Agent table holds the information about a monitoring agent
+who is allowed to connect to the Hyperion server. */
+CREATE TABLE hyperion_agent (
+  /* the agent identifier */
+  `id` BIGINT NOT NULL,
+  /* the agent host name */
+  `hostname` VARCHAR(255) BINARY NOT NULL,
+  /* the IP address */
+  `ip` VARCHAR(255) BINARY NOT NULL,
+  /* the agent key */
+  `key` VARCHAR(255) BINARY NOT NULL,
+  /* the date when the agent was registered */
+  `create_date` DATETIME NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*  */
 CREATE TABLE hyperion_host_desc (
   /* the identifier */
@@ -774,7 +731,9 @@ CREATE TABLE hyperion_host (
   /* host description text */
   `description` VARCHAR(255) BINARY NOT NULL,
   /* the host status type */
-  `status`  NOT NULL,
+  `status` TINYINT NOT NULL,
+  /*  */
+  `agent_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*  */
@@ -840,7 +799,8 @@ CREATE TABLE hyperion_source (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 INSERT INTO entity_type (name) VALUES
-("hyperion_host_desc")
+("hyperion_agent")
+,("hyperion_host_desc")
 ,("hyperion_host")
 ,("hyperion_host_info")
 ,("hyperion_series")
