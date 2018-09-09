@@ -150,20 +150,11 @@ package Hyperion.Agents.Models is
    procedure Copy (Object : in Agent_Ref;
                    Into   : in out Agent_Ref);
 
-   package Agent_Vectors is
-      new Ada.Containers.Vectors (Index_Type   => Natural,
-                                  Element_Type => Agent_Ref,
-                                  "="          => "=");
-   subtype Agent_Vector is Agent_Vectors.Vector;
-
-   procedure List (Object  : in out Agent_Vector;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class);
 
 
 
 private
-   AGENT_NAME : aliased constant String := "Agent";
+   AGENT_NAME : aliased constant String := "hyperion_agent";
    COL_0_1_NAME : aliased constant String := "id";
    COL_1_1_NAME : aliased constant String := "hostname";
    COL_2_1_NAME : aliased constant String := "ip";

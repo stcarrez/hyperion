@@ -446,26 +446,6 @@ package body Hyperion.Agents.Models is
    end Get_Value;
 
 
-   procedure List (Object  : in out Agent_Vector;
-                   Session : in out ADO.Sessions.Session'Class;
-                   Query   : in ADO.SQL.Query'Class) is
-      Stmt : ADO.Statements.Query_Statement
-        := Session.Create_Statement (Query, AGENT_DEF'Access);
-   begin
-      Stmt.Execute;
-      Agent_Vectors.Clear (Object);
-      while Stmt.Has_Elements loop
-         declare
-            Item : Agent_Ref;
-            Impl : constant Agent_Access := new Agent_Impl;
-         begin
-            Impl.Load (Stmt, Session);
-            ADO.Objects.Set_Object (Item, Impl.all'Access);
-            Object.Append (Item);
-         end;
-         Stmt.Next;
-      end loop;
-   end List;
 
    --  ------------------------------
    --  Load the object from current iterator position

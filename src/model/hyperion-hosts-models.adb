@@ -627,6 +627,23 @@ package body Hyperion.Hosts.Models is
       return Impl.Status;
    end Get_Status;
 
+
+   procedure Set_Agent (Object : in out Host_Ref;
+                        Value  : in Hyperion.Agents.Models.Agent_Ref'Class) is
+      Impl : Host_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Object (Impl.all, 10, Impl.Agent, Value);
+   end Set_Agent;
+
+   function Get_Agent (Object : in Host_Ref)
+                  return Hyperion.Agents.Models.Agent_Ref'Class is
+      Impl : constant Host_Access
+         := Host_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Agent;
+   end Get_Agent;
+
    --  Copy of the object.
    procedure Copy (Object : in Host_Ref;
                    Into   : in out Host_Ref) is
@@ -649,6 +666,7 @@ package body Hyperion.Hosts.Models is
             Copy.Serial := Impl.Serial;
             Copy.Description := Impl.Description;
             Copy.Status := Impl.Status;
+            Copy.Agent := Impl.Agent;
          end;
       end if;
       Into := Result;
@@ -818,6 +836,11 @@ package body Hyperion.Hosts.Models is
                           Value => Integer (Status_Type'Pos (Object.Status)));
          Object.Clear_Modified (9);
       end if;
+      if Object.Is_Modified (10) then
+         Stmt.Save_Field (Name  => COL_9_2_NAME, --  agent_id
+                          Value => Object.Agent);
+         Object.Clear_Modified (10);
+      end if;
       if Stmt.Has_Save_Fields then
          Object.Version := Object.Version + 1;
          Stmt.Save_Field (Name  => "version",
@@ -866,6 +889,8 @@ package body Hyperion.Hosts.Models is
                         Value => Object.Description);
       Query.Save_Field (Name  => COL_8_2_NAME, --  status
                         Value => Integer (Status_Type'Pos (Object.Status)));
+      Query.Save_Field (Name  => COL_9_2_NAME, --  agent_id
+                        Value => Object.Agent);
       Query.Execute (Result);
       if Result /= 1 then
          raise ADO.Objects.INSERT_ERROR;
@@ -925,7 +950,6 @@ package body Hyperion.Hosts.Models is
    procedure Load (Object  : in out Host_Impl;
                    Stmt    : in out ADO.Statements.Query_Statement'Class;
                    Session : in out ADO.Sessions.Session'Class) is
-      pragma Unreferenced (Session);
    begin
       Object.Set_Key_Value (Stmt.Get_Identifier (0));
       Object.Name := Stmt.Get_Unbounded_String (2);
@@ -935,6 +959,9 @@ package body Hyperion.Hosts.Models is
       Object.Serial := Stmt.Get_Unbounded_String (6);
       Object.Description := Stmt.Get_Unbounded_String (7);
       Object.Status := Status_Type'Val (Stmt.Get_Integer (8));
+      if not Stmt.Is_Null (9) then
+         Object.Agent.Set_Key_Value (Stmt.Get_Identifier (9), Session);
+      end if;
       Object.Version := Stmt.Get_Integer (1);
       ADO.Objects.Set_Created (Object);
    end Load;

@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 with Util.Beans.Objects;
 with Util.Beans.Objects.Enums;
 with Util.Beans.Basic.Lists;
+with Hyperion.Agents.Models;
 pragma Warnings (On);
 package Hyperion.Hosts.Models is
 
@@ -222,6 +223,14 @@ package Hyperion.Hosts.Models is
    --  Get the host status type
    function Get_Status (Object : in Host_Ref)
                  return Hyperion.Hosts.Models.Status_Type;
+
+   --
+   procedure Set_Agent (Object : in out Host_Ref;
+                        Value  : in Hyperion.Agents.Models.Agent_Ref'Class);
+
+   --
+   function Get_Agent (Object : in Host_Ref)
+                 return Hyperion.Agents.Models.Agent_Ref'Class;
 
    --  Load the entity identified by 'Id'.
    --  Raises the NOT_FOUND exception if it does not exist.
@@ -434,9 +443,10 @@ private
    COL_6_2_NAME : aliased constant String := "serial";
    COL_7_2_NAME : aliased constant String := "description";
    COL_8_2_NAME : aliased constant String := "status";
+   COL_9_2_NAME : aliased constant String := "agent_id";
 
    HOST_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 9,
+     (Count => 10,
       Table => HOST_NAME'Access,
       Members => (
          1 => COL_0_2_NAME'Access,
@@ -447,7 +457,8 @@ private
          6 => COL_5_2_NAME'Access,
          7 => COL_6_2_NAME'Access,
          8 => COL_7_2_NAME'Access,
-         9 => COL_8_2_NAME'Access
+         9 => COL_8_2_NAME'Access,
+         10 => COL_9_2_NAME'Access
 )
      );
    HOST_TABLE : constant ADO.Schemas.Class_Mapping_Access
@@ -468,6 +479,7 @@ private
        Serial : Ada.Strings.Unbounded.Unbounded_String;
        Description : Ada.Strings.Unbounded.Unbounded_String;
        Status : Hyperion.Hosts.Models.Status_Type;
+       Agent : Hyperion.Agents.Models.Agent_Ref;
    end record;
 
    type Host_Access is access all Host_Impl;
