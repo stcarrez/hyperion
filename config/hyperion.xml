@@ -11,4 +11,25 @@
       <servlet-name>measures</servlet-name>
       <url-pattern>/statistics.xml</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>api</servlet-name>
+      <url-pattern>/api/v1/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>oauth</servlet-name>
+      <url-pattern>/oauth/token</url-pattern>
+    </servlet-mapping>
+
+    <filter-mapping>
+      <filter-name>oauth</filter-name>
+      <url-pattern>/api/v1/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>service</filter-name>
+      <url-pattern>/api/v1/*</url-pattern>
+    </filter-mapping>
+
 </module>
