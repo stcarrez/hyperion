@@ -18,6 +18,7 @@
 with ASF.Applications;
 
 with AWA.Modules;
+with Hyperion.Hosts.Models;
 package Hyperion.Hosts.Modules is
 
    --  The name under which the module is registered.
@@ -34,6 +35,12 @@ package Hyperion.Hosts.Modules is
    procedure Initialize (Plugin : in out Host_Module;
                          App    : in AWA.Modules.Application_Access;
                          Props  : in ASF.Applications.Config);
+
+   --  Create a new host under the name, ip and associated with the agent.
+   --  Return the host identifier.
+   procedure Create_Host (Plugin    : in out Host_Module;
+                          Agent_Key : in String;
+                          Host      : in out Models.Host_Ref);
 
    --  Get the hosts module.
    function Get_Host_Module return Host_Module_Access;
