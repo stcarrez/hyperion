@@ -15,12 +15,20 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
+with Ada.Calendar;
 
+with ADO.Objects;
+with ADO.Queries;
+with ADO.Sessions;
+with AWA.Services.Contexts;
 with AWA.Modules.Beans;
 with AWA.Modules.Get;
 with Util.Log.Loggers;
 with Hyperion.Hosts.Beans;
+with Hyperion.Agents.Models;
 package body Hyperion.Hosts.Modules is
+
+   package ASC renames AWA.Services.Contexts;
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Hyperion.Hosts.Module");
 
@@ -46,6 +54,36 @@ package body Hyperion.Hosts.Modules is
 
       --  Add here the creation of manager instances.
    end Initialize;
+
+   --  ------------------------------
+   --  Create a new host under the name, ip and associated with the agent.
+   --  Return the host identifier.
+   --  ------------------------------
+   procedure Create_Host (Plugin    : in out Host_Module;
+                          Agent_Key : in String;
+                          Host      : in out Models.Host_Ref) is
+      Ctx   : constant ASC.Service_Context_Access := ASC.Current;
+      DB    : ADO.Sessions.Master_Session := ASC.Get_Master_Session (Ctx);
+      Agent : Agents.Models.Agent_Ref;
+      Found : Boolean;
+      Query : ADO.Queries.Context;
+   begin
+      Ctx.Start;
+      Query.Set_Filter ("o.key = :key");
+      Query.Bind_Param ("key", Agent_Key);
+      Agent.Find (DB, Query, Found);
+      if not Found then
+         raise ADO.Objects.NOT_FOUND with "No agent with the given key";
+      end if;
+      Host.Set_Agent (Agent);
+      Host.Set_Create_Date (Ada.Calendar.Clock);
+      Host.Save (DB);
+      Ctx.Commit;
+
+      Log.Info ("Create host {0}@{1} under {2}",
+                String '(Host.Get_Name),
+                String '(Host.Get_Ip), ADO.Identifier'Image (Host.Get_Id));
+   end Create_Host;
 
    --  ------------------------------
    --  Get the hosts module.
