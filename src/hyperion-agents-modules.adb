@@ -15,12 +15,17 @@
 --  See the License for the specific language governing permissions and
 --  limitations under the License.
 -----------------------------------------------------------------------
-
+with Ada.Calendar;
+with ADO.Sessions;
 with AWA.Modules.Beans;
 with AWA.Modules.Get;
+with AWA.Services.Contexts;
 with Util.Log.Loggers;
 with Hyperion.Agents.Beans;
+with Hyperion.Agents.Models;
 package body Hyperion.Agents.Modules is
+
+   package ASC renames AWA.Services.Contexts;
 
    Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Hyperion.Agents.Module");
 
@@ -46,6 +51,25 @@ package body Hyperion.Agents.Modules is
 
       --  Add here the creation of manager instances.
    end Initialize;
+
+   --  ------------------------------
+   --  Register a new agent under the name, ip and key.
+   --  Return the agent identifier.
+   --  ------------------------------
+   procedure Register_Agent (Plugin : in out Agent_Module;
+                             Agent  : in out Models.Agent_Ref) is
+      Ctx   : constant ASC.Service_Context_Access := ASC.Current;
+      DB    : ADO.Sessions.Master_Session := ASC.Get_Master_Session (Ctx);
+   begin
+      Ctx.Start;
+      Agent.Set_Create_Date (Ada.Calendar.Clock);
+      Agent.Save (DB);
+      Ctx.Commit;
+
+      Log.Info ("Register agent {0}@{1} under {2}",
+                String '(Agent.Get_Hostname),
+                String '(Agent.Get_Ip), ADO.Identifier'Image (Agent.Get_Id));
+   end Register_Agent;
 
    --  ------------------------------
    --  Get the agents module.
