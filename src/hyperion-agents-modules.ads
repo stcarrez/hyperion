@@ -16,8 +16,9 @@
 --  limitations under the License.
 -----------------------------------------------------------------------
 with ASF.Applications;
-
+with ADO;
 with AWA.Modules;
+with Hyperion.Agents.Models;
 package Hyperion.Agents.Modules is
 
    --  The name under which the module is registered.
@@ -35,8 +36,14 @@ package Hyperion.Agents.Modules is
                          App    : in AWA.Modules.Application_Access;
                          Props  : in ASF.Applications.Config);
 
+   --  Register a new agent under the name, ip and key.
+   --  Return the agent identifier.
+   procedure Register_Agent (Plugin : in out Agent_Module;
+                             Agent  : in out Models.Agent_Ref);
+
    --  Get the agents module.
    function Get_Agent_Module return Agent_Module_Access;
+
 
 private
 
