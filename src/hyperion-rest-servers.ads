@@ -36,10 +36,12 @@ package Hyperion.Rest.Servers is
        Name : in Swagger.UString;
        Ip : in Swagger.UString;
        Host_Key : in Swagger.UString;
+       Agent_Key : in Swagger.UString;
+       Agent_Id : in Integer;
        Result  : out Hyperion.Rest.Models.Host_Type;
        Context : in out Swagger.Servers.Context_Type);
 
    package Server_Impl is
-      new Hyperion.Rest.Skeletons.Skeleton (Server_Type);
+      new Hyperion.Rest.Skeletons.Skeleton (Server_Type, URI_Prefix => "/api/v1");
 
 end Hyperion.Rest.Servers;
