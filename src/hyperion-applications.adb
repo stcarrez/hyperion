@@ -50,6 +50,8 @@ package body Hyperion.Applications is
       App.Api_Auth.Set_Realm_Manager (App.Realm'Unchecked_Access);
       App.OAuth.Set_Auth_Manager (App.Api_Auth'Unchecked_Access);
       App.Api_Filter.Set_Auth_Manager (App.Api_Auth'Unchecked_Access);
+      App.Realm.Load (Config, Config.Get ("swagger.users", "users"));
+      App.Apps.Load (Config, Config.Get ("swagger.apps", "apps"));
 
       --  Register the REST API.
       Hyperion.Rest.Servers.Server_Impl.Register (App.all);
@@ -166,11 +168,6 @@ package body Hyperion.Applications is
                 Name   => AWA.Counters.Modules.NAME,
                 URI    => "counters",
                 Module => App.Counter_Module'Access);
-
-      Register (App    => App.Self.all'Access,
-                Name   => AWA.Blogs.Modules.NAME,
-                URI    => "blogs",
-                Module => App.Blog_Module'Access);
 
       Register (App    => App.Self.all'Access,
                 Name   => AWA.Wikis.Modules.NAME,
