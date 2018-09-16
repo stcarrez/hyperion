@@ -904,6 +904,8 @@ package body Hyperion.Monitoring.Models is
       Impl.Start_Date := ADO.DEFAULT_TIME;
       Impl.End_Date := ADO.DEFAULT_TIME;
       Impl.Count := 0;
+      Impl.First_Value := 0;
+      Impl.Format := Hyperion.Monitoring.Models.Format_Type'First;
       ADO.Objects.Set_Object (Object, Impl.all'Access);
    end Allocate;
 
@@ -972,28 +974,15 @@ package body Hyperion.Monitoring.Models is
 
 
    procedure Set_Content (Object : in out Series_Ref;
-                           Value : in String) is
+                          Value  : in ADO.Blob_Ref) is
       Impl : Series_Access;
    begin
       Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_String (Impl.all, 5, Impl.Content, Value);
-   end Set_Content;
-
-   procedure Set_Content (Object : in out Series_Ref;
-                          Value  : in Ada.Strings.Unbounded.Unbounded_String) is
-      Impl : Series_Access;
-   begin
-      Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Unbounded_String (Impl.all, 5, Impl.Content, Value);
+      ADO.Objects.Set_Field_Blob (Impl.all, 5, Impl.Content, Value);
    end Set_Content;
 
    function Get_Content (Object : in Series_Ref)
-                 return String is
-   begin
-      return Ada.Strings.Unbounded.To_String (Object.Get_Content);
-   end Get_Content;
-   function Get_Content (Object : in Series_Ref)
-                  return Ada.Strings.Unbounded.Unbounded_String is
+                  return ADO.Blob_Ref is
       Impl : constant Series_Access
          := Series_Impl (Object.Get_Load_Object.all)'Access;
    begin
@@ -1018,12 +1007,48 @@ package body Hyperion.Monitoring.Models is
    end Get_Count;
 
 
+   procedure Set_First_Value (Object : in out Series_Ref;
+                              Value  : in Integer) is
+      Impl : Series_Access;
+   begin
+      Set_Field (Object, Impl);
+      ADO.Objects.Set_Field_Integer (Impl.all, 7, Impl.First_Value, Value);
+   end Set_First_Value;
+
+   function Get_First_Value (Object : in Series_Ref)
+                  return Integer is
+      Impl : constant Series_Access
+         := Series_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.First_Value;
+   end Get_First_Value;
+
+
+   procedure Set_Format (Object : in out Series_Ref;
+                         Value  : in Hyperion.Monitoring.Models.Format_Type) is
+      procedure Set_Field_Enum is
+         new ADO.Objects.Set_Field_Operation (Format_Type);
+      Impl : Series_Access;
+   begin
+      Set_Field (Object, Impl);
+      Set_Field_Enum (Impl.all, 8, Impl.Format, Value);
+   end Set_Format;
+
+   function Get_Format (Object : in Series_Ref)
+                  return Hyperion.Monitoring.Models.Format_Type is
+      Impl : constant Series_Access
+         := Series_Impl (Object.Get_Load_Object.all)'Access;
+   begin
+      return Impl.Format;
+   end Get_Format;
+
+
    procedure Set_Source (Object : in out Series_Ref;
                          Value  : in Hyperion.Monitoring.Models.Source_Ref'Class) is
       Impl : Series_Access;
    begin
       Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Object (Impl.all, 7, Impl.Source, Value);
+      ADO.Objects.Set_Field_Object (Impl.all, 9, Impl.Source, Value);
    end Set_Source;
 
    function Get_Source (Object : in Series_Ref)
@@ -1040,7 +1065,7 @@ package body Hyperion.Monitoring.Models is
       Impl : Series_Access;
    begin
       Set_Field (Object, Impl);
-      ADO.Objects.Set_Field_Object (Impl.all, 8, Impl.Snapshot, Value);
+      ADO.Objects.Set_Field_Object (Impl.all, 10, Impl.Snapshot, Value);
    end Set_Snapshot;
 
    function Get_Snapshot (Object : in Series_Ref)
@@ -1070,6 +1095,8 @@ package body Hyperion.Monitoring.Models is
             Copy.End_Date := Impl.End_Date;
             Copy.Content := Impl.Content;
             Copy.Count := Impl.Count;
+            Copy.First_Value := Impl.First_Value;
+            Copy.Format := Impl.Format;
             Copy.Source := Impl.Source;
             Copy.Snapshot := Impl.Snapshot;
          end;
@@ -1227,14 +1254,24 @@ package body Hyperion.Monitoring.Models is
          Object.Clear_Modified (6);
       end if;
       if Object.Is_Modified (7) then
-         Stmt.Save_Field (Name  => COL_6_3_NAME, --  source_id
-                          Value => Object.Source);
+         Stmt.Save_Field (Name  => COL_6_3_NAME, --  first_value
+                          Value => Object.First_Value);
          Object.Clear_Modified (7);
       end if;
       if Object.Is_Modified (8) then
-         Stmt.Save_Field (Name  => COL_7_3_NAME, --  snapshot_id
-                          Value => Object.Snapshot);
+         Stmt.Save_Field (Name  => COL_7_3_NAME, --  format
+                          Value => Integer (Format_Type'Pos (Object.Format)));
          Object.Clear_Modified (8);
+      end if;
+      if Object.Is_Modified (9) then
+         Stmt.Save_Field (Name  => COL_8_3_NAME, --  source_id
+                          Value => Object.Source);
+         Object.Clear_Modified (9);
+      end if;
+      if Object.Is_Modified (10) then
+         Stmt.Save_Field (Name  => COL_9_3_NAME, --  snapshot_id
+                          Value => Object.Snapshot);
+         Object.Clear_Modified (10);
       end if;
       if Stmt.Has_Save_Fields then
          Object.Version := Object.Version + 1;
@@ -1278,9 +1315,13 @@ package body Hyperion.Monitoring.Models is
                         Value => Object.Content);
       Query.Save_Field (Name  => COL_5_3_NAME, --  count
                         Value => Object.Count);
-      Query.Save_Field (Name  => COL_6_3_NAME, --  source_id
+      Query.Save_Field (Name  => COL_6_3_NAME, --  first_value
+                        Value => Object.First_Value);
+      Query.Save_Field (Name  => COL_7_3_NAME, --  format
+                        Value => Integer (Format_Type'Pos (Object.Format)));
+      Query.Save_Field (Name  => COL_8_3_NAME, --  source_id
                         Value => Object.Source);
-      Query.Save_Field (Name  => COL_7_3_NAME, --  snapshot_id
+      Query.Save_Field (Name  => COL_9_3_NAME, --  snapshot_id
                         Value => Object.Snapshot);
       Query.Execute (Result);
       if Result /= 1 then
@@ -1319,10 +1360,12 @@ package body Hyperion.Monitoring.Models is
          return Util.Beans.Objects.Time.To_Object (Impl.Start_Date);
       elsif Name = "end_date" then
          return Util.Beans.Objects.Time.To_Object (Impl.End_Date);
-      elsif Name = "content" then
-         return Util.Beans.Objects.To_Object (Impl.Content);
       elsif Name = "count" then
          return Util.Beans.Objects.To_Object (Long_Long_Integer (Impl.Count));
+      elsif Name = "first_value" then
+         return Util.Beans.Objects.To_Object (Long_Long_Integer (Impl.First_Value));
+      elsif Name = "format" then
+         return Hyperion.Monitoring.Models.Format_Type_Objects.To_Object (Impl.Format);
       end if;
       return Util.Beans.Objects.Null_Object;
    end Get_Value;
@@ -1339,13 +1382,15 @@ package body Hyperion.Monitoring.Models is
       Object.Set_Key_Value (Stmt.Get_Identifier (0));
       Object.Start_Date := Stmt.Get_Time (2);
       Object.End_Date := Stmt.Get_Time (3);
-      Object.Content := Stmt.Get_Unbounded_String (4);
+      Object.Content := Stmt.Get_Blob (4);
       Object.Count := Stmt.Get_Integer (5);
-      if not Stmt.Is_Null (6) then
-         Object.Source.Set_Key_Value (Stmt.Get_Identifier (6), Session);
+      Object.First_Value := Stmt.Get_Integer (6);
+      Object.Format := Format_Type'Val (Stmt.Get_Integer (7));
+      if not Stmt.Is_Null (8) then
+         Object.Source.Set_Key_Value (Stmt.Get_Identifier (8), Session);
       end if;
-      if not Stmt.Is_Null (7) then
-         Object.Snapshot.Set_Key_Value (Stmt.Get_Identifier (7), Session);
+      if not Stmt.Is_Null (9) then
+         Object.Snapshot.Set_Key_Value (Stmt.Get_Identifier (9), Session);
       end if;
       Object.Version := Stmt.Get_Integer (1);
       ADO.Objects.Set_Created (Object);

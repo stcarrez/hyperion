@@ -30,12 +30,18 @@ with Ada.Calendar;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Util.Beans.Objects;
+with Util.Beans.Objects.Enums;
 with Util.Beans.Basic.Lists;
 with Hyperion.Hosts.Models;
 pragma Warnings (On);
 package Hyperion.Monitoring.Models is
 
    pragma Style_Checks ("-mr");
+
+   type Format_Type is (FORMAT_JSON);
+   for Format_Type use (FORMAT_JSON => 0);
+   package Format_Type_Objects is
+      new Util.Beans.Objects.Enums (Format_Type);
 
    type Snapshot_Ref is new ADO.Objects.Object_Ref with null record;
 
@@ -143,6 +149,10 @@ package Hyperion.Monitoring.Models is
    procedure List (Object  : in out Snapshot_Vector;
                    Session : in out ADO.Sessions.Session'Class;
                    Query   : in ADO.SQL.Query'Class);
+   --  --------------------
+   --  The source describes an element of the system that is monitored and which
+   --  for which we have collected data.
+   --  --------------------
    --  Create an object key for Source.
    function Source_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key;
    --  Create an object key for Source from a string.
@@ -251,6 +261,12 @@ package Hyperion.Monitoring.Models is
    procedure List (Object  : in out Source_Vector;
                    Session : in out ADO.Sessions.Session'Class;
                    Query   : in ADO.SQL.Query'Class);
+   --  --------------------
+   --  The Series table holds the collected data
+   --  for a given time frame. Values are serialized
+   --  in the 'content' blob in a format described by
+   --  the Format_Type enumeration.
+   --  --------------------
    --  Create an object key for Series.
    function Series_Key (Id : in ADO.Identifier) return ADO.Objects.Object_Key;
    --  Create an object key for Series from a string.
@@ -289,15 +305,11 @@ package Hyperion.Monitoring.Models is
 
    --  Set the series content (JSON).
    procedure Set_Content (Object : in out Series_Ref;
-                          Value  : in Ada.Strings.Unbounded.Unbounded_String);
-   procedure Set_Content (Object : in out Series_Ref;
-                          Value : in String);
+                          Value  : in ADO.Blob_Ref);
 
    --  Get the series content (JSON).
    function Get_Content (Object : in Series_Ref)
-                 return Ada.Strings.Unbounded.Unbounded_String;
-   function Get_Content (Object : in Series_Ref)
-                 return String;
+                 return ADO.Blob_Ref;
 
    --  Set the number of values in the series.
    procedure Set_Count (Object : in out Series_Ref;
@@ -306,6 +318,22 @@ package Hyperion.Monitoring.Models is
    --  Get the number of values in the series.
    function Get_Count (Object : in Series_Ref)
                  return Integer;
+
+   --  Set the first value of the serie.
+   procedure Set_First_Value (Object : in out Series_Ref;
+                              Value  : in Integer);
+
+   --  Get the first value of the serie.
+   function Get_First_Value (Object : in Series_Ref)
+                 return Integer;
+
+   --  Set the format of the content blob data.
+   procedure Set_Format (Object : in out Series_Ref;
+                         Value  : in Hyperion.Monitoring.Models.Format_Type);
+
+   --  Get the format of the content blob data.
+   function Get_Format (Object : in Series_Ref)
+                 return Hyperion.Monitoring.Models.Format_Type;
 
    --
    procedure Set_Source (Object : in out Series_Ref;
@@ -511,11 +539,13 @@ private
    COL_3_3_NAME : aliased constant String := "end_date";
    COL_4_3_NAME : aliased constant String := "content";
    COL_5_3_NAME : aliased constant String := "count";
-   COL_6_3_NAME : aliased constant String := "source_id";
-   COL_7_3_NAME : aliased constant String := "snapshot_id";
+   COL_6_3_NAME : aliased constant String := "first_value";
+   COL_7_3_NAME : aliased constant String := "format";
+   COL_8_3_NAME : aliased constant String := "source_id";
+   COL_9_3_NAME : aliased constant String := "snapshot_id";
 
    SERIES_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 8,
+     (Count => 10,
       Table => SERIES_NAME'Access,
       Members => (
          1 => COL_0_3_NAME'Access,
@@ -525,7 +555,9 @@ private
          5 => COL_4_3_NAME'Access,
          6 => COL_5_3_NAME'Access,
          7 => COL_6_3_NAME'Access,
-         8 => COL_7_3_NAME'Access
+         8 => COL_7_3_NAME'Access,
+         9 => COL_8_3_NAME'Access,
+         10 => COL_9_3_NAME'Access
 )
      );
    SERIES_TABLE : constant ADO.Schemas.Class_Mapping_Access
@@ -541,8 +573,10 @@ private
        Version : Integer;
        Start_Date : Ada.Calendar.Time;
        End_Date : Ada.Calendar.Time;
-       Content : Ada.Strings.Unbounded.Unbounded_String;
+       Content : ADO.Blob_Ref;
        Count : Integer;
+       First_Value : Integer;
+       Format : Hyperion.Monitoring.Models.Format_Type;
        Source : Hyperion.Monitoring.Models.Source_Ref;
        Snapshot : Hyperion.Monitoring.Models.Snapshot_Ref;
    end record;
