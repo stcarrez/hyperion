@@ -39,18 +39,6 @@ package body Hyperion.Rest.Skeletons is
             Context.Set_Error (403, "Permission denied");
             return;
          end if;
-         if not Context.Has_Permission (ACL_Create_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Write_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Read_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
          Swagger.Servers.Get_Parameter (Context, "name", Name);
          Swagger.Servers.Get_Parameter (Context, "ip", Ip);
          Swagger.Servers.Get_Parameter (Context, "agentKey", Agent_Key);
@@ -88,19 +76,7 @@ package body Hyperion.Rest.Skeletons is
             Context.Set_Error (401, "Not authenticated");
             return;
          end if;
-         if not Context.Has_Permission (ACL_Agent_Register.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
          if not Context.Has_Permission (ACL_Create_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Write_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Read_Host.Permission) then
             Context.Set_Error (403, "Permission denied");
             return;
          end if;
