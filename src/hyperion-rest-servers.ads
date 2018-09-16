@@ -41,7 +41,6 @@ package Hyperion.Rest.Servers is
        Result  : out Hyperion.Rest.Models.Host_Type;
        Context : in out Swagger.Servers.Context_Type);
 
-   package Server_Impl is
-      new Hyperion.Rest.Skeletons.Skeleton (Server_Type, URI_Prefix => "/api/v1");
-
+   procedure Register (Server : in out Swagger.Servers.Application_Type'Class);
+ 
 end Hyperion.Rest.Servers;
