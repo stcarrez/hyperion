@@ -14,8 +14,26 @@ with Hyperion.Agents.Models;
 with Hyperion.Hosts.Modules;
 with Hyperion.Hosts.Models;
 with ADO.Objects;
+
+with Util.Log.Loggers;
+with Util.Beans.Objects.Maps;
+with Util.Serialize.IO.JSON;
+with Util.Beans.Objects.Readers;
+with Servlet.Streams;
+with Swagger.Servers;
+with Swagger.Servers.Operation;
 package body Hyperion.Rest.Servers is
 
+   Log : constant Util.Log.Loggers.Logger := Util.Log.Loggers.Create ("Hyperion.Rest.Servers");
+
+   procedure Process_Snapshot
+     (Req     : in out Swagger.Servers.Request'Class;
+      Reply   : in out Swagger.Servers.Response'Class;
+      Stream  : in out Swagger.Servers.Output_Stream'Class;
+      Context : in out Swagger.Servers.Context_Type);
+
+   package Server_Impl is
+      new Hyperion.Rest.Skeletons.Skeleton (Server_Type, URI_Prefix => "/api/v1");
 
    --  Register a monitoring agent
    --  Register a new monitoring agent in the system
@@ -72,5 +90,76 @@ package body Hyperion.Rest.Servers is
          Context.Set_Error (Code    => 405,
                             Message => "Invalid agent key");
    end Create_Host;
+
+   package API_Process_Snapshot is
+     new Swagger.Servers.Operation (Handler => Process_Snapshot,
+                                    Method  => Swagger.Servers.POST,
+                                    URI     => "/api/v1/hosts/{host_id}/snapshot");
+
+   --  Register a monitoring agent
+   procedure Process_Snapshot
+     (Req     : in out Swagger.Servers.Request'Class;
+      Reply   : in out Swagger.Servers.Response'Class;
+      Stream  : in out Swagger.Servers.Output_Stream'Class;
+      Context : in out Swagger.Servers.Context_Type) is
+      Name : Swagger.UString;
+      Ip : Swagger.UString;
+      Agent_Key : Swagger.UString;
+      Result : Hyperion.Rest.Models.Agent_Type;
+      Input  : constant Servlet.Streams.Input_Stream_Access := Req.Get_Input_Stream;
+      Parser : Util.Serialize.IO.JSON.Parser;
+      Mapper : Util.Beans.Objects.Readers.Reader;
+      Root   : Util.Beans.Objects.Object;
+      Key    : Util.Beans.Objects.Object;
+      Snapshot : Util.Beans.Objects.Object;
+      
+      package UBO renames Util.Beans.Objects;
+
+      procedure Process_Data (Name : in String;
+                              Data : in Util.Beans.Objects.Object) is
+        
+         Start_Time : Natural := UBO.To_Integer (UBO.Get_Value (Data, "start_time"));
+         End_Time   : Natural := UBO.To_Integer (UBO.Get_Value (Data, "end_time"));
+         Snapshot   : UBO.Object := UBO.Get_Value (Data, "snapshot");
+
+         procedure Process_Snapshot (Name : in String;
+                                     Data : in Util.Beans.Objects.Object) is
+         begin
+            Log.Info ("  probe {0} - ", Name);
+         end Process_Snapshot;
+
+      begin
+         if Start_Time = 0 and End_Time = 0 then
+            Util.Beans.Objects.Maps.Iterate (Data, Process_Data'Access);
+         else
+            Log.Info ("Data {0} - {1} to {2}", Name, Natural'Image (Start_Time),
+                      Natural'Image (End_Time));
+            Util.Beans.Objects.Maps.Iterate (Snapshot, Process_Snapshot'Access);
+         end if;
+      end Process_Data;
+
+   begin
+      if not Context.Is_Authenticated then
+         Context.Set_Error (401, "Not authenticated");
+         return;
+      end if;
+      if not Context.Has_Permission (Skeletons.ACL_Write_Host.Permission) then
+         Context.Set_Error (403, "Permission denied");
+         return;
+      end if;
+
+      Parser.Parse (Input.all, Mapper);
+      Root := Mapper.Get_Root;
+      Key := Util.Beans.Objects.Get_Value (Root, "host_key");
+      Snapshot := Util.Beans.Objects.Get_Value (Root, "snapshot");
+      Util.Beans.Objects.Maps.Iterate (Snapshot, Process_Data'Access);
+      Context.Set_Status (200);
+   end Process_Snapshot;
+
+   procedure Register (Server : in out Swagger.Servers.Application_Type'Class) is
+   begin
+      Server_Impl.Register (Server);
+      Swagger.Servers.Register (Server, API_Process_Snapshot.Definition);
+   end Register;
 
 end Hyperion.Rest.Servers;
