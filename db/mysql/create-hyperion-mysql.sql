@@ -750,7 +750,10 @@ CREATE TABLE hyperion_host_info (
   `desc_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*  */
+/* The Series table holds the collected data
+for a given time frame. Values are serialized
+in the 'content' blob in a format described by
+the Format_Type enumeration. */
 CREATE TABLE hyperion_series (
   /* the series unique identifier */
   `id` BIGINT NOT NULL,
@@ -761,9 +764,13 @@ CREATE TABLE hyperion_series (
   /* the date and time of the last value in the series. */
   `end_date` DATETIME NOT NULL,
   /* the series content (JSON). */
-  `content` VARCHAR(255) BINARY NOT NULL,
+  `content` LONGBLOB NOT NULL,
   /* the number of values in the series. */
   `count` INTEGER NOT NULL,
+  /* the first value of the serie. */
+  `first_value` INTEGER NOT NULL,
+  /* the format of the content blob data. */
+  `format`  NOT NULL,
   /*  */
   `source_id` BIGINT NOT NULL,
   /* the snapshot that produced the series */
@@ -784,7 +791,8 @@ CREATE TABLE hyperion_snapshot (
   `host_id` BIGINT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*  */
+/* The source describes an element of the system that is monitored and which
+for which we have collected data. */
 CREATE TABLE hyperion_source (
   /* unique identifier. */
   `id` BIGINT NOT NULL,
