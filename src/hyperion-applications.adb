@@ -54,7 +54,7 @@ package body Hyperion.Applications is
       App.Apps.Load (Config, Config.Get ("swagger.apps", "apps"));
 
       --  Register the REST API.
-      Hyperion.Rest.Servers.Server_Impl.Register (App.all);
+      Hyperion.Rest.Servers.Register (App.all);
    end Initialize;
 
    --  ------------------------------
