@@ -91,6 +91,29 @@ package body Hyperion.Rest.Servers is
                             Message => "Invalid agent key");
    end Create_Host;
 
+   --  Get information about the host
+   --  Provide information about the host
+   procedure Get_Host
+      (Server : in out Server_Type;
+       Host_Id : in Swagger.Long;
+       Result  : out Hyperion.Rest.Models.Host_Type;
+       Context : in out Swagger.Servers.Context_Type) is
+   begin
+      null;
+   end Get_Host;
+
+   --  Get information about the host datasets
+   --  The datasets describes and gives access to the monitored data.
+   overriding
+   procedure Get_Datasets
+      (Server : in out Server_Type;
+       Host_Id : in Swagger.Long;
+       Result  : out Hyperion.Rest.Models.Dataset_Type_Vectors.Vector;
+       Context : in out Swagger.Servers.Context_Type) is
+   begin
+      null;
+   end Get_Datasets;
+
    package API_Process_Snapshot is
      new Swagger.Servers.Operation (Handler => Process_Snapshot,
                                     Method  => Swagger.Servers.POST,

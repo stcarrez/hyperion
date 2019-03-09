@@ -49,6 +49,7 @@ with AWA.Counters.Modules;
 with AWA.Converters.Dates;
 with Hyperion.Hosts.Modules;
 with Hyperion.Agents.Modules;
+with Hyperion.Monitoring.Modules;
 package Hyperion.Applications is
 
    CONFIG_PATH  : constant String := "hyperion";
@@ -131,6 +132,7 @@ private
       --  Add your modules here.
       Host_Module        : aliased Hyperion.Hosts.Modules.Host_Module;
       Agent_Module       : aliased Hyperion.Agents.Modules.Agent_Module;
+      Monitoring_Module  : aliased Hyperion.Monitoring.Modules.Monitoring_Module;
    end record;
 
 end Hyperion.Applications;

@@ -186,6 +186,10 @@ package body Hyperion.Applications is
                 Name   => Hyperion.Agents.Modules.NAME,
                 URI    => "agents",
                 Module => App.Agent_Module'Access);
+      Register (App    => App.Self.all'Access,
+                Name   => Hyperion.Monitoring.Modules.NAME,
+                URI    => "monitoring",
+                Module => App.Monitoring_Module'Access);
    end Initialize_Modules;
 
 end Hyperion.Applications;

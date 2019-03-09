@@ -41,6 +41,23 @@ package Hyperion.Rest.Servers is
        Result  : out Hyperion.Rest.Models.Host_Type;
        Context : in out Swagger.Servers.Context_Type);
 
+   --  Get information about the host
+   --  Provide information about the host
+   procedure Get_Host
+      (Server : in out Server_Type;
+       Host_Id : in Swagger.Long;
+       Result  : out Hyperion.Rest.Models.Host_Type;
+       Context : in out Swagger.Servers.Context_Type);
+
+   --  Get information about the host datasets
+   --  The datasets describes and gives access to the monitored data.
+   overriding
+   procedure Get_Datasets
+      (Server : in out Server_Type;
+       Host_Id : in Swagger.Long;
+       Result  : out Hyperion.Rest.Models.Dataset_Type_Vectors.Vector;
+       Context : in out Swagger.Servers.Context_Type);
+
    procedure Register (Server : in out Swagger.Servers.Application_Type'Class);
  
 end Hyperion.Rest.Servers;
