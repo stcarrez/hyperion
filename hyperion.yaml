@@ -35,8 +35,7 @@ paths:
         '405':
           description: Invalid input
       security:
-        - agent_auth:
-            - 'agent:register'
+        - agent_auth: ['agent:register']
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -74,7 +73,7 @@ paths:
           description: Invalid input
       security:
         - agent_auth:
-            - 'create:host'
+          - 'create:host'
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -96,12 +95,66 @@ paths:
                 agentId:
                   description: The agent identification
                   type: integer
+                  format: int32
               required:
                 - name
                 - ip
                 - hostKey
                 - agentKey
                 - agentId
+  /hosts/{hostId}:
+    get:
+      summary: Get information about the host
+      description: |
+        Provide information about the host
+      operationId: getHost
+      parameters:
+        - name: hostId
+          in: path
+          description: The host identifier.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        '404':
+          description: the host does not exist
+      security:
+        - agent_auth: ['host:read']
+  /hosts/{hostId}/datasets:
+    get:
+      summary: Get information about the host datasets
+      description: |
+        The datasets describes and gives access to the monitored data.
+      operationId: getDatasets
+      parameters:
+        - name: hostId
+          in: path
+          description: The host identifier.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dataset'
+        '404':
+          description: the host does not exist
+      security:
+        - agent_auth:
+          - 'host:read'
 security:
   - agent_auth: []
 externalDocs:
@@ -121,7 +174,7 @@ components:
             'agent:register': Register a new monitoring agent
             'create:host': Register and create a host
             'write:host': Update a new host
-            'read:host': Read a host information
+            'host:read': Read a host information
   schemas:
     Agent:
       type: object
@@ -206,3 +259,26 @@ components:
         create_date: '2017-12-24T00:00:00.000Z'
       xml:
         name: Host
+    Dataset:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: the dataset identifier
+        name:
+          type: string
+          description: the dataset logical name
+        label:
+          type: string
+          description: the dataset printable label
+      required:
+        - id
+        - name
+        - label
+      example:
+        id: 123
+        name: sda.write_time
+        label: Time spent in writing on sda
+      xml:
+        name: Dataset
