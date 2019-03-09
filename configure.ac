@@ -42,33 +42,33 @@ AM_SHARED_LIBRARY_SUPPORT
 ##########################################
 # Ada Util library
 ##########################################
-AM_GNAT_FIND_PROJECT([ada-util],[Ada Utility Library],[util],
+AM_GNAT_FIND_PROJECT([ada-util],[Ada Utility Library],[utilada_sys],
   [git@github.com:stcarrez/ada-util.git],
   [Building hyperion requires the Ada Utility Library.],
   [
-    UTIL_DIR=${gnat_project_dir_util}
+    UTIL_DIR=${gnat_project_dir_utilada_sys}
   ])
 AC_SUBST(UTIL_DIR)
 
 ##########################################
 # Ada Expression Language library
 ##########################################
-AM_GNAT_FIND_PROJECT([ada-el],[Ada Expression Language Library],[el],
+AM_GNAT_FIND_PROJECT([ada-el],[Ada Expression Language Library],[elada],
   [git@github.com:stcarrez/ada-el.git],
   [Building hyperion requires the Ada EL Library.],
   [
-    EL_DIR=${gnat_project_dir_el}
+    EL_DIR=${gnat_project_dir_elada}
   ])
 AC_SUBST(EL_DIR)
 
 ##########################################
 # Ada Servlet library
 ##########################################
-AM_GNAT_FIND_PROJECT([ada-servlet],[Ada Servlet Library],[servlet],
+AM_GNAT_FIND_PROJECT([ada-servlet],[Ada Servlet],[servletada],
   [git@github.com:stcarrez/ada-servlet.git],
-  [Building Atlas requires the Ada Servlet Library.],
+  [Building hyperion requires the Ada Servlet Library.],
   [
-    SERVLET_DIR=${gnat_project_dir_servlet}
+    SERVLET_DIR=${gnat_project_dir_servletada}
   ])
 AC_SUBST(SERVLET_DIR)
 
@@ -119,11 +119,11 @@ AC_SUBST(ADO_DIR)
 ##########################################
 # Ada Wiki library
 ##########################################
-AM_GNAT_FIND_PROJECT([ada-wiki],[Ada Wiki],[wiki],
+AM_GNAT_FIND_PROJECT([ada-wiki],[Ada Wiki],[wikiada],
   [git@github.com:stcarrez/ada-wiki.git],
   [Building hyperion requires the Ada Wiki Library.],
   [
-    WIKI_DIR=${gnat_project_dir_wiki}
+    WIKI_DIR=${gnat_project_dir_wikiada}
   ])
 AC_SUBST(WIKI_DIR)
 
