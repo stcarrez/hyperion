@@ -53,6 +53,72 @@ package body Hyperion.Rest.Skeletons is
          end if;
       end Register_Agent;
 
+      package API_Get_Datasets is
+         new Swagger.Servers.Operation (Handler => Get_Datasets,
+                                        Method  => Swagger.Servers.GET,
+                                        URI     => URI_Prefix & "/hosts/{hostId}/datasets");
+
+      --  Get information about the host datasets
+      procedure Get_Datasets
+         (Req     : in out Swagger.Servers.Request'Class;
+          Reply   : in out Swagger.Servers.Response'Class;
+          Stream  : in out Swagger.Servers.Output_Stream'Class;
+          Context : in out Swagger.Servers.Context_Type) is
+         Impl : Implementation_Type;
+         Host_Id : Swagger.Long;
+         Result : Hyperion.Rest.Models.Dataset_Type_Vectors.Vector;
+      begin
+         if not Context.Is_Authenticated then
+            Context.Set_Error (401, "Not authenticated");
+            return;
+         end if;
+         if not Context.Has_Permission (ACL_Host_Read.Permission) then
+            Context.Set_Error (403, "Permission denied");
+            return;
+         end if;
+         Swagger.Servers.Get_Path_Parameter (Req, 1, Host_Id);
+         Impl.Get_Datasets
+            (Host_Id, Result, Context);
+         if Context.Get_Status = 200 then
+            Stream.Start_Document;
+            Hyperion.Rest.Models.Serialize (Stream, "", Result);
+            Stream.End_Document;
+         end if;
+      end Get_Datasets;
+
+      package API_Get_Host is
+         new Swagger.Servers.Operation (Handler => Get_Host,
+                                        Method  => Swagger.Servers.GET,
+                                        URI     => URI_Prefix & "/hosts/{hostId}");
+
+      --  Get information about the host
+      procedure Get_Host
+         (Req     : in out Swagger.Servers.Request'Class;
+          Reply   : in out Swagger.Servers.Response'Class;
+          Stream  : in out Swagger.Servers.Output_Stream'Class;
+          Context : in out Swagger.Servers.Context_Type) is
+         Impl : Implementation_Type;
+         Host_Id : Swagger.Long;
+         Result : Hyperion.Rest.Models.Host_Type;
+      begin
+         if not Context.Is_Authenticated then
+            Context.Set_Error (401, "Not authenticated");
+            return;
+         end if;
+         if not Context.Has_Permission (ACL_Host_Read.Permission) then
+            Context.Set_Error (403, "Permission denied");
+            return;
+         end if;
+         Swagger.Servers.Get_Path_Parameter (Req, 1, Host_Id);
+         Impl.Get_Host
+            (Host_Id, Result, Context);
+         if Context.Get_Status = 200 then
+            Stream.Start_Document;
+            Hyperion.Rest.Models.Serialize (Stream, "", Result);
+            Stream.End_Document;
+         end if;
+      end Get_Host;
+
       package API_Create_Host is
          new Swagger.Servers.Operation (Handler => Create_Host,
                                         Method  => Swagger.Servers.POST,
@@ -101,6 +167,8 @@ package body Hyperion.Rest.Skeletons is
       procedure Register (Server : in out Swagger.Servers.Application_Type'Class) is
       begin
          Swagger.Servers.Register (Server, API_Register_Agent.Definition);
+         Swagger.Servers.Register (Server, API_Get_Datasets.Definition);
+         Swagger.Servers.Register (Server, API_Get_Host.Definition);
          Swagger.Servers.Register (Server, API_Create_Host.Definition);
       end Register;
 
@@ -128,18 +196,6 @@ package body Hyperion.Rest.Skeletons is
             Context.Set_Error (403, "Permission denied");
             return;
          end if;
-         if not Context.Has_Permission (ACL_Create_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Write_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Read_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
          Swagger.Servers.Get_Parameter (Context, "name", Name);
          Swagger.Servers.Get_Parameter (Context, "ip", Ip);
          Swagger.Servers.Get_Parameter (Context, "agentKey", Agent_Key);
@@ -159,6 +215,70 @@ package body Hyperion.Rest.Skeletons is
                                         Method  => Swagger.Servers.POST,
                                         URI     => URI_Prefix & "/agents");
 
+      --  Get information about the host datasets
+      procedure Get_Datasets
+         (Req     : in out Swagger.Servers.Request'Class;
+          Reply   : in out Swagger.Servers.Response'Class;
+          Stream  : in out Swagger.Servers.Output_Stream'Class;
+          Context : in out Swagger.Servers.Context_Type) is
+         Host_Id : Swagger.Long;
+         Result : Hyperion.Rest.Models.Dataset_Type_Vectors.Vector;
+      begin
+         if not Context.Is_Authenticated then
+            Context.Set_Error (401, "Not authenticated");
+            return;
+         end if;
+         if not Context.Has_Permission (ACL_Host_Read.Permission) then
+            Context.Set_Error (403, "Permission denied");
+            return;
+         end if;
+         Swagger.Servers.Get_Path_Parameter (Req, 1, Host_Id);
+         Server.Get_Datasets
+            (Host_Id, Result, Context);
+         if Context.Get_Status = 200 then
+            Stream.Start_Document;
+            Hyperion.Rest.Models.Serialize (Stream, "", Result);
+            Stream.End_Document;
+         end if;
+      end Get_Datasets;
+
+      package API_Get_Datasets is
+         new Swagger.Servers.Operation (Handler => Get_Datasets,
+                                        Method  => Swagger.Servers.GET,
+                                        URI     => URI_Prefix & "/hosts/{hostId}/datasets");
+
+      --  Get information about the host
+      procedure Get_Host
+         (Req     : in out Swagger.Servers.Request'Class;
+          Reply   : in out Swagger.Servers.Response'Class;
+          Stream  : in out Swagger.Servers.Output_Stream'Class;
+          Context : in out Swagger.Servers.Context_Type) is
+         Host_Id : Swagger.Long;
+         Result : Hyperion.Rest.Models.Host_Type;
+      begin
+         if not Context.Is_Authenticated then
+            Context.Set_Error (401, "Not authenticated");
+            return;
+         end if;
+         if not Context.Has_Permission (ACL_Host_Read.Permission) then
+            Context.Set_Error (403, "Permission denied");
+            return;
+         end if;
+         Swagger.Servers.Get_Path_Parameter (Req, 1, Host_Id);
+         Server.Get_Host
+            (Host_Id, Result, Context);
+         if Context.Get_Status = 200 then
+            Stream.Start_Document;
+            Hyperion.Rest.Models.Serialize (Stream, "", Result);
+            Stream.End_Document;
+         end if;
+      end Get_Host;
+
+      package API_Get_Host is
+         new Swagger.Servers.Operation (Handler => Get_Host,
+                                        Method  => Swagger.Servers.GET,
+                                        URI     => URI_Prefix & "/hosts/{hostId}");
+
       --  Create a host
       procedure Create_Host
          (Req     : in out Swagger.Servers.Request'Class;
@@ -176,19 +296,7 @@ package body Hyperion.Rest.Skeletons is
             Context.Set_Error (401, "Not authenticated");
             return;
          end if;
-         if not Context.Has_Permission (ACL_Agent_Register.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
          if not Context.Has_Permission (ACL_Create_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Write_Host.Permission) then
-            Context.Set_Error (403, "Permission denied");
-            return;
-         end if;
-         if not Context.Has_Permission (ACL_Read_Host.Permission) then
             Context.Set_Error (403, "Permission denied");
             return;
          end if;
@@ -218,6 +326,8 @@ package body Hyperion.Rest.Skeletons is
       procedure Register (Server : in out Swagger.Servers.Application_Type'Class) is
       begin
          Swagger.Servers.Register (Server, API_Register_Agent.Definition);
+         Swagger.Servers.Register (Server, API_Get_Datasets.Definition);
+         Swagger.Servers.Register (Server, API_Get_Host.Definition);
          Swagger.Servers.Register (Server, API_Create_Host.Definition);
       end Register;
 
@@ -237,6 +347,30 @@ package body Hyperion.Rest.Skeletons is
                 Result,
                 Context);
          end Register_Agent;
+
+         --  Get information about the host datasets
+         procedure Get_Datasets
+            (Host_Id : in Swagger.Long;
+             Result : out Hyperion.Rest.Models.Dataset_Type_Vectors.Vector;
+             Context : in out Swagger.Servers.Context_Type) is
+         begin
+            Impl.Get_Datasets
+               (Host_Id,
+                Result,
+                Context);
+         end Get_Datasets;
+
+         --  Get information about the host
+         procedure Get_Host
+            (Host_Id : in Swagger.Long;
+             Result : out Hyperion.Rest.Models.Host_Type;
+             Context : in out Swagger.Servers.Context_Type) is
+         begin
+            Impl.Get_Host
+               (Host_Id,
+                Result,
+                Context);
+         end Get_Host;
 
          --  Create a host
          procedure Create_Host

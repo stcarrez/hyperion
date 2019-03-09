@@ -45,6 +45,36 @@ package Hyperion.Rest.Models is
 
 
 
+   type Dataset_Type is
+     record
+       Id : Swagger.Long;
+       Name : Swagger.UString;
+       Label : Swagger.UString;
+     end record;
+
+   package Dataset_Type_Vectors is
+      new Ada.Containers.Vectors (Index_Type   => Positive,
+                                  Element_Type => Dataset_Type);
+
+   procedure Serialize (Into  : in out Swagger.Streams.Output_Stream'Class;
+                        Name  : in String;
+                        Value : in Dataset_Type);
+
+   procedure Serialize (Into  : in out Swagger.Streams.Output_Stream'Class;
+                        Name  : in String;
+                        Value : in Dataset_Type_Vectors.Vector);
+
+   procedure Deserialize (From  : in Swagger.Value_Type;
+                          Name  : in String;
+                          Value : out Dataset_Type);
+
+   procedure Deserialize (From  : in Swagger.Value_Type;
+                          Name  : in String;
+                          Value : out Dataset_Type_Vectors.Vector);
+
+
+
+
    type Body_Type is
      record
        Name : Swagger.UString;
