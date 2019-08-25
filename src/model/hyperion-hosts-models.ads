@@ -5,7 +5,7 @@
 --  Template used: templates/model/package-spec.xhtml
 --  Ada Generator: https://ada-gen.googlecode.com/svn/trunk Revision 1095
 -----------------------------------------------------------------------
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,11 @@ package Hyperion.Hosts.Models is
    for Status_Type use (HOST_UNREGISTERED => 0, HOST_ACTIVE => 1, HOST_OFFLINE => 2, HOST_RETIRED => 3);
    package Status_Type_Objects is
       new Util.Beans.Objects.Enums (Status_Type);
+
+   type Nullable_Status_Type is record
+      Is_Null : Boolean := True;
+      Value   : Status_Type;
+   end record;
 
    type Description_Ref is new ADO.Objects.Object_Ref with null record;
 
@@ -380,16 +385,16 @@ private
    COL_2_1_NAME : aliased constant String := "content";
 
    DESCRIPTION_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 3,
-      Table => DESCRIPTION_NAME'Access,
+     (Count   => 3,
+      Table   => DESCRIPTION_NAME'Access,
       Members => (
          1 => COL_0_1_NAME'Access,
          2 => COL_1_1_NAME'Access,
-         3 => COL_2_1_NAME'Access
-)
+         3 => COL_2_1_NAME'Access)
      );
    DESCRIPTION_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := DESCRIPTION_DEF'Access;
+
 
    Null_Description : constant Description_Ref
       := Description_Ref'(ADO.Objects.Object_Ref with null record);
@@ -446,8 +451,8 @@ private
    COL_9_2_NAME : aliased constant String := "agent_id";
 
    HOST_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 10,
-      Table => HOST_NAME'Access,
+     (Count   => 10,
+      Table   => HOST_NAME'Access,
       Members => (
          1 => COL_0_2_NAME'Access,
          2 => COL_1_2_NAME'Access,
@@ -458,11 +463,11 @@ private
          7 => COL_6_2_NAME'Access,
          8 => COL_7_2_NAME'Access,
          9 => COL_8_2_NAME'Access,
-         10 => COL_9_2_NAME'Access
-)
+         10 => COL_9_2_NAME'Access)
      );
    HOST_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := HOST_DEF'Access;
+
 
    Null_Host : constant Host_Ref
       := Host_Ref'(ADO.Objects.Object_Ref with null record);
@@ -521,18 +526,18 @@ private
    COL_4_3_NAME : aliased constant String := "desc_id";
 
    HOST_INFO_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 5,
-      Table => HOST_INFO_NAME'Access,
+     (Count   => 5,
+      Table   => HOST_INFO_NAME'Access,
       Members => (
          1 => COL_0_3_NAME'Access,
          2 => COL_1_3_NAME'Access,
          3 => COL_2_3_NAME'Access,
          4 => COL_3_3_NAME'Access,
-         5 => COL_4_3_NAME'Access
-)
+         5 => COL_4_3_NAME'Access)
      );
    HOST_INFO_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := HOST_INFO_DEF'Access;
+
 
    Null_Host_Info : constant Host_Info_Ref
       := Host_Info_Ref'(ADO.Objects.Object_Ref with null record);

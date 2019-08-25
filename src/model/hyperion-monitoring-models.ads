@@ -5,7 +5,7 @@
 --  Template used: templates/model/package-spec.xhtml
 --  Ada Generator: https://ada-gen.googlecode.com/svn/trunk Revision 1095
 -----------------------------------------------------------------------
---  Copyright (C) 2018 Stephane Carrez
+--  Copyright (C) 2019 Stephane Carrez
 --  Written by Stephane Carrez (Stephane.Carrez@gmail.com)
 --
 --  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,11 @@ package Hyperion.Monitoring.Models is
    for Format_Type use (FORMAT_JSON => 0);
    package Format_Type_Objects is
       new Util.Beans.Objects.Enums (Format_Type);
+
+   type Nullable_Format_Type is record
+      Is_Null : Boolean := True;
+      Value   : Format_Type;
+   end record;
 
    type Snapshot_Ref is new ADO.Objects.Object_Ref with null record;
 
@@ -410,18 +415,18 @@ private
    COL_4_1_NAME : aliased constant String := "host_id";
 
    SNAPSHOT_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 5,
-      Table => SNAPSHOT_NAME'Access,
+     (Count   => 5,
+      Table   => SNAPSHOT_NAME'Access,
       Members => (
          1 => COL_0_1_NAME'Access,
          2 => COL_1_1_NAME'Access,
          3 => COL_2_1_NAME'Access,
          4 => COL_3_1_NAME'Access,
-         5 => COL_4_1_NAME'Access
-)
+         5 => COL_4_1_NAME'Access)
      );
    SNAPSHOT_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := SNAPSHOT_DEF'Access;
+
 
    Null_Snapshot : constant Snapshot_Ref
       := Snapshot_Ref'(ADO.Objects.Object_Ref with null record);
@@ -475,18 +480,18 @@ private
    COL_4_2_NAME : aliased constant String := "host_id";
 
    SOURCE_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 5,
-      Table => SOURCE_NAME'Access,
+     (Count   => 5,
+      Table   => SOURCE_NAME'Access,
       Members => (
          1 => COL_0_2_NAME'Access,
          2 => COL_1_2_NAME'Access,
          3 => COL_2_2_NAME'Access,
          4 => COL_3_2_NAME'Access,
-         5 => COL_4_2_NAME'Access
-)
+         5 => COL_4_2_NAME'Access)
      );
    SOURCE_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := SOURCE_DEF'Access;
+
 
    Null_Source : constant Source_Ref
       := Source_Ref'(ADO.Objects.Object_Ref with null record);
@@ -545,8 +550,8 @@ private
    COL_9_3_NAME : aliased constant String := "snapshot_id";
 
    SERIES_DEF : aliased constant ADO.Schemas.Class_Mapping :=
-     (Count => 10,
-      Table => SERIES_NAME'Access,
+     (Count   => 10,
+      Table   => SERIES_NAME'Access,
       Members => (
          1 => COL_0_3_NAME'Access,
          2 => COL_1_3_NAME'Access,
@@ -557,11 +562,11 @@ private
          7 => COL_6_3_NAME'Access,
          8 => COL_7_3_NAME'Access,
          9 => COL_8_3_NAME'Access,
-         10 => COL_9_3_NAME'Access
-)
+         10 => COL_9_3_NAME'Access)
      );
    SERIES_TABLE : constant ADO.Schemas.Class_Mapping_Access
       := SERIES_DEF'Access;
+
 
    Null_Series : constant Series_Ref
       := Series_Ref'(ADO.Objects.Object_Ref with null record);
