@@ -26,6 +26,40 @@ INSERT INTO entity_type (name) VALUES
 ;
 /* Copied from awa-postgresql.sql*/
 /* File generated automatically by dynamo */
+/* The Audit table records the changes made on database on behalf of a user.
+The record indicates the database table and row, the field being updated,
+the old and new value. The old and new values are converted to a string
+and they truncated if necessary to 256 characters. */
+CREATE TABLE awa_audit (
+  /* the audit identifier */
+  "id" BIGINT NOT NULL,
+  /* the date when the field was modified. */
+  "date" TIMESTAMP NOT NULL,
+  /* the old field value. */
+  "old_value" VARCHAR(255) ,
+  /* the new field value. */
+  "new_value" VARCHAR(255) ,
+  /* the database entity identifier to which the audit is associated. */
+  "entity_id" BIGINT NOT NULL,
+  /*  */
+  "field" INTEGER NOT NULL,
+  /* the user session under which the field was modified. */
+  "session_id" BIGINT ,
+  /* the entity type. */
+  "entity_type" INTEGER NOT NULL,
+  PRIMARY KEY ("id")
+);
+/* The Audit_Field table describes
+the database field being updated. */
+CREATE TABLE awa_audit_field (
+  /* the audit field identifier. */
+  "id" SERIAL,
+  /* the audit field name. */
+  "name" VARCHAR(255) NOT NULL,
+  /* the entity type */
+  "entity_type" INTEGER NOT NULL,
+  PRIMARY KEY ("id")
+);
 /*  */
 CREATE TABLE awa_message (
   /* the message identifier */
@@ -252,7 +286,9 @@ CREATE TABLE awa_user (
   PRIMARY KEY ("id")
 );
 INSERT INTO entity_type (name) VALUES
-('awa_message')
+('awa_audit')
+,('awa_audit_field')
+,('awa_message')
 ,('awa_message_type')
 ,('awa_queue')
 ,('awa_application')
@@ -265,6 +301,14 @@ INSERT INTO entity_type (name) VALUES
 ,('awa_session')
 ,('awa_user')
 ;
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_user"), "first_name");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_user"), "last_name");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_user"), "country");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_user"), "name");
 /* Copied from awa-workspaces-postgresql.sql*/
 /* File generated automatically by dynamo */
 /*  */
@@ -368,6 +412,12 @@ CREATE TABLE awa_comment (
 INSERT INTO entity_type (name) VALUES
 ('awa_comment')
 ;
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_comment"), "message");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_comment"), "status");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_comment"), "format");
 /* Copied from awa-storages-postgresql.sql*/
 /* File generated automatically by dynamo */
 /* The uri member holds the URI if the storage type is URL.
@@ -685,6 +735,20 @@ INSERT INTO entity_type (name) VALUES
 ,('awa_wiki_page')
 ,('awa_wiki_space')
 ;
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_page"), "name");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_page"), "last_version");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_page"), "is_public");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_page"), "title");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_space"), "name");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_space"), "is_public");
+INSERT INTO awa_audit_field (entity_type, name)
+  VALUES ((SELECT id FROM entity_type WHERE name = "awa_wiki_space"), "format");
 /* Copied from hyperion-postgresql.sql*/
 /* File generated automatically by dynamo */
 /* The Agent table holds the information about a monitoring agent
